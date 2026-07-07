@@ -285,3 +285,68 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+
+// ===== SCROLL ANIMATIONS =====
+
+// Header shrink on scroll
+const header = document.querySelector('.header');
+let lastScroll = 0;
+
+window.addEventListener('scroll', function() {
+    const currentScroll = window.pageYOffset;
+
+    // Header effect
+    if (currentScroll > 50) {
+        header.classList.add('header-scrolled');
+    } else {
+        header.classList.remove('header-scrolled');
+    }
+
+    lastScroll = currentScroll;
+});
+
+// Intersection Observer for section animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+        }
+    });
+}, observerOptions);
+
+// Observe all animatable elements
+document.addEventListener('DOMContentLoaded', function() {
+    const animatables = document.querySelectorAll(
+        '.category, .pasabocas-card, .pasabocas-banner, .about-content, .contact-card, .product-card'
+    );
+    animatables.forEach(function(el) {
+        el.classList.add('animate-on-scroll');
+        observer.observe(el);
+    });
+
+    // Active nav link highlight
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav a[href^="#"]');
+
+    window.addEventListener('scroll', function() {
+        let current = '';
+        sections.forEach(function(section) {
+            const sectionTop = section.offsetTop - 150;
+            if (window.pageYOffset >= sectionTop) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(function(link) {
+            link.classList.remove('nav-active');
+            if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('nav-active');
+            }
+        });
+    });
+});
