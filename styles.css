@@ -86,10 +86,34 @@ body {
     font-weight: 500;
     transition: all 0.3s;
     font-size: 0.95rem;
+    position: relative;
+    padding: 5px 0;
+}
+
+.nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: #ff6b35;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+    border-radius: 2px;
 }
 
 .nav a:hover {
     color: white;
+}
+
+.nav a:hover::after {
+    width: 100%;
+}
+
+.nav-active::after {
+    width: 100% !important;
+    background: #ff6b35;
 }
 
 .menu-toggle {
@@ -1120,19 +1144,6 @@ body {
 
 .nav-active {
     color: #ff6b35 !important;
-    position: relative;
-}
-
-.nav-active::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    height: 3px;
-    background: #ff6b35;
-    border-radius: 2px;
 }
 
 .animate-on-scroll {
