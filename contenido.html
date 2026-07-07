@@ -308,8 +308,13 @@
             document.getElementById('carouselModal').classList.add('active');
         }
 
+        var isSaving = false;
+
         async function saveCarouselItem(e) {
             e.preventDefault();
+            if (isSaving) return;
+            isSaving = true;
+
             var items = await fetchCarousel();
             var editId = document.getElementById('carouselEditId').value;
             var imageUrl = document.getElementById('carouselImageUrl').value;
@@ -321,6 +326,7 @@
 
             if (!imageUrl) {
                 alert('Por favor ingresa una URL de imagen o sube una imagen.');
+                isSaving = false;
                 return;
             }
 
@@ -341,6 +347,7 @@
             }
 
             var result = await saveCarousel(items);
+            isSaving = false;
             if (result) {
                 closeModal('carouselModal');
                 await renderCarouselList();
@@ -425,8 +432,13 @@
             document.getElementById('promoModal').classList.add('active');
         }
 
+        var isSavingPromo = false;
+
         async function savePromotionItem(e) {
             e.preventDefault();
+            if (isSavingPromo) return;
+            isSavingPromo = true;
+
             var items = await fetchPromotions();
             var editId = document.getElementById('promoEditId').value;
             var imageUrl = document.getElementById('promoImageUrl').value;
@@ -454,6 +466,7 @@
             }
 
             var result = await savePromotions(items);
+            isSavingPromo = false;
             if (result) {
                 closeModal('promoModal');
                 await renderPromotionsList();

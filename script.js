@@ -415,10 +415,12 @@ async function loadPromotions() {
             html += '<p>' + promo.description + '</p>';
         }
         if (promo.validUntil) {
-            var date = new Date(promo.validUntil);
+            var date = new Date(promo.validUntil + 'T12:00:00');
             var dateStr = date.toLocaleDateString('es-VE', { day: '2-digit', month: 'long', year: 'numeric' });
             html += '<span class="promo-validity">Valido hasta: ' + dateStr + '</span>';
         }
+        var promoMsg = encodeURIComponent('Hola! Quiero aprovechar la promocion: ' + promo.title + (promo.discount ? ' (' + promo.discount + ')' : ''));
+        html += '<a href="https://wa.me/573117795937?text=' + promoMsg + '" target="_blank" class="btn-primary promo-order-btn"><i class="fab fa-whatsapp"></i> Pedir Ahora</a>';
         html += '</div></div>';
     });
     grid.innerHTML = html;

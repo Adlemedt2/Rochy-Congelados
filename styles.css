@@ -2495,6 +2495,14 @@ body {
     border-radius: 15px;
     font-size: 0.8rem;
     font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.promo-order-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
 }
 
 /* ===== CONTENT MANAGEMENT ===== */
