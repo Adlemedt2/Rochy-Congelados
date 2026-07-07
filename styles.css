@@ -25,15 +25,20 @@ body {
 
 /* ===== HEADER ===== */
 .header {
-    background: rgba(30, 60, 114, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 12px 0;
+    background: transparent;
+    padding: 18px 0;
     position: fixed;
     width: 100%;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    transition: all 0.3s;
+    transition: all 0.4s ease;
+}
+
+.header-scrolled {
+    background: rgba(30, 60, 114, 0.95);
+    backdrop-filter: blur(12px);
+    padding: 10px 0;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.25);
 }
 
 .header .container {
@@ -1112,11 +1117,6 @@ body {
 }
 
 /* ===== SCROLL ANIMATIONS ===== */
-.header-scrolled {
-    padding: 8px 0;
-    background: rgba(30, 60, 114, 0.98);
-    box-shadow: 0 4px 30px rgba(0,0,0,0.25);
-}
 
 .nav-active {
     color: #ff6b35 !important;
