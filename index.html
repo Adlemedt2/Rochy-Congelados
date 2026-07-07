@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congelados Rochy - Productos Congelados por Bandejas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-snowflake"></i>
+                <span>Congelados Rochy</span>
+            </div>
+            <nav class="nav">
+                <a href="#inicio">Inicio</a>
+                <a href="#productos">Productos</a>
+                <a href="#about">Nosotros</a>
+                <a href="#contacto">Contacto</a>
+            </nav>
+            <button class="menu-toggle" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="hero">
+        <div class="hero-content">
+            <h1>Los mejores productos congelados</h1>
+            <p>Deditos, empanadas, panzerottis y pastelitos frescos y deliciosos para toda tu familia</p>
+            <a href="#productos" class="btn-primary">Ver Productos</a>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="productos" class="products-section">
+        <div class="container">
+            <h2 class="section-title">Nuestros Productos</h2>
+            <p class="section-subtitle">Haz clic en cualquier producto para ver sus caracteristicas y precios</p>
+
+            <!-- Category: Deditos -->
+            <div class="category">
+                <div class="category-header">
+                    <i class="fas fa-hand-pointer"></i>
+                    <h3>Deditos</h3>
+                </div>
+                <div class="products-grid">
+                    <div class="product-card" onclick="openModal('deditos-queso')">
+                        <div class="product-icon"><i class="fas fa-cheese"></i></div>
+                        <h4>Deditos de Queso</h4>
+                        <p class="product-preview">Crujientes deditos rellenos de queso</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    <div class="product-card" onclick="openModal('deditos-bocadillo')">
+                        <div class="product-icon"><i class="fas fa-bread-slice"></i></div>
+                        <h4>Deditos de Bocadillo</h4>
+                        <p class="product-preview">Deditos con delicioso relleno de bocadillo</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    <div class="product-card" onclick="openModal('deditos-especiales')">
+                        <div class="product-icon"><i class="fas fa-layer-group"></i></div>
+                        <h4>Deditos Especiales (Queso - Bocadillo)</h4>
+                        <p class="product-preview">Surteido de deditos de queso y bocadillo</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Empanadas -->
+            <div class="category">
+                <div class="category-header">
+                    <i class="fas fa-cookie"></i>
+                    <h3>Empanadas</h3>
+                </div>
+                <div class="products-grid">
+                    <div class="product-card" onclick="openModal('empanadas-pollo')">
+                        <div class="product-icon"><i class="fas fa-drumstick-bite"></i></div>
+                        <h4>Empanadas de Pollo</h4>
+                        <p class="product-preview">Empanadas rellenas de pollo sazonado</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    <div class="product-card" onclick="openModal('empanadas-hawaianas')">
+                        <div class="product-icon"><i class="fas fa-umbrella-beach"></i></div>
+                        <h4>Empanadas Hawaianas</h4>
+                        <p class="product-preview">Combination tropical de jamon y piña</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    <div class="product-card" onclick="openModal('empanadas-especiales')">
+                        <div class="product-icon"><i class="fas fa-star"></i></div>
+                        <h4>Empanadas Especiales</h4>
+                        <p class="product-preview">Nuestra receta especial de la casa</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    <div class="product-card" onclick="openModal('empanadas-jamon-queso')">
+                        <div class="product-icon"><i class="fas fa-cheese"></i></div>
+                        <h4>Empanadas de Jamon y Queso</h4>
+                        <p class="product-preview">La combinacion clasica de jamon y queso</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Panzerottis -->
+            <div class="category">
+                <div class="category-header">
+                    <i class="fas fa-pizza-slice"></i>
+                    <h3>Panzerottis</h3>
+                </div>
+                <div class="products-grid">
+                    <div class="product-card" onclick="openModal('panzerottis')">
+                        <div class="product-icon"><i class="fas fa-pizza-slice"></i></div>
+                        <h4>Panzerottis</h4>
+                        <p class="product-preview">Masa rellena al estilo italiano, crujientes y sabrosos</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Pastelitos -->
+            <div class="category">
+                <div class="category-header">
+                    <i class="fas fa-birthday-cake"></i>
+                    <h3>Pastelitos</h3>
+                </div>
+                <div class="products-grid">
+                    <div class="product-card" onclick="openModal('pastelitos-pollo')">
+                        <div class="product-icon"><i class="fas fa-drumstick-bite"></i></div>
+                        <h4>Pastelitos de Pollo</h4>
+                        <p class="product-preview">Pastelitos rellenos de pollo desmechado</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    <div class="product-card" onclick="openModal('pastelitos-jamon-queso')">
+                        <div class="product-icon"><i class="fas fa-cheese"></i></div>
+                        <h4>Pastelitos de Jamon y Queso</h4>
+                        <p class="product-preview">La combinacion clasica que nunca falla</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    <div class="product-card" onclick="openModal('pastelitos-especiales')">
+                        <div class="product-icon"><i class="fas fa-star"></i></div>
+                        <h4>Pastelitos Especiales</h4>
+                        <p class="product-preview">Nuestra seleccion premium de pastelitos</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    <div class="product-card" onclick="openModal('pastelitos-hawaianos')">
+                        <div class="product-icon"><i class="fas fa-umbrella-beach"></i></div>
+                        <h4>Pastelitos Hawaianos</h4>
+                        <p class="product-preview">Tropical mezcla de jamon, queso y piña</p>
+                        <span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Sobre Congelados Rochy</h2>
+                    <p>En Congelados Rochy nos dedicamos a ofrecer los mejores productos congelados para que disfrutes de comida deliciosa en la comodidad de tu hogar.</p>
+                    <p>Nuestros productos son elaborados con ingredientes frescos y de calidad, congelados rapidamente para conservar todo su sabor y frescura.</p>
+                    <ul class="about-features">
+                        <li><i class="fas fa-check-circle"></i> Ingredientes frescos y de calidad</li>
+                        <li><i class="fas fa-check-circle"></i> Congelacion rapida para conservar el sabor</li>
+                        <li><i class="fas fa-check-circle"></i> Variedad para todos los gustos</li>
+                        <li><i class="fas fa-check-circle"></i> Facil y rapido de preparar</li>
+                    </ul>
+                </div>
+                <div class="about-image">
+                    <div class="about-icon">
+                        <i class="fas fa-snowflake"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contacto" class="contact-section">
+        <div class="container">
+            <h2 class="section-title light">Contacto</h2>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <i class="fas fa-phone"></i>
+                    <h3>Telefono</h3>
+                    <p>+54 11 1234-5678</p>
+                </div>
+                <div class="contact-card">
+                    <i class="fas fa-whatsapp"></i>
+                    <h3>WhatsApp</h3>
+                    <p>+54 11 1234-5678</p>
+                </div>
+                <div class="contact-card">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>Direccion</h3>
+                    <p>Tu direccion aqui</p>
+                </div>
+                <div class="contact-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Horario</h3>
+                    <p>Lun - Sab: 9:00 - 19:00</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-snowflake"></i>
+                    <span>Congelados Rochy</span>
+                </div>
+                <p>&copy; 2026 Congelados Rochy. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-header">
+                <div class="modal-icon" id="modal-icon"></div>
+                <h2 id="modal-title"></h2>
+            </div>
+            <div class="modal-body">
+                <div class="modal-description" id="modal-description"></div>
+                <div class="modal-details">
+                    <h3><i class="fas fa-info-circle"></i> Caracteristicas</h3>
+                    <ul id="modal-features"></ul>
+                </div>
+                <div class="modal-pricing">
+                    <h3><i class="fas fa-tag"></i> Presentaciones y Precios</h3>
+                    <div id="modal-prices"></div>
+                </div>
+                <div class="modal-preparation">
+                    <h3><i class="fas fa-fire"></i> Preparacion</h3>
+                    <p id="modal-preparation-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
