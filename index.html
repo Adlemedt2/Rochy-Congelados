@@ -9,11 +9,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <img src="IMAGENES/LOGO.jpeg" loading="lazy" alt="Congelados Rochy" class="loading-logo">
+            <div class="loading-bar">
+                <div class="loading-bar-fill"></div>
+            </div>
+            <p>Cargando...</p>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="logo">
-                <img src="IMAGENES/LOGO.jpeg" alt="Congelados Rochy" class="logo-img">
+                <img src="IMAGENES/LOGO.jpeg" loading="lazy" alt="Congelados Rochy" class="logo-img">
                 <span class="logo-text">Congelados <strong>Rochy</strong></span>
             </div>
             <nav class="nav">
@@ -42,7 +53,7 @@
             <div class="particle"></div>
         </div>
         <div class="hero-content">
-            <img src="IMAGENES/LOGO.jpeg" alt="Congelados Rochy" class="hero-logo">
+            <img src="IMAGENES/LOGO.jpeg" loading="lazy" alt="Congelados Rochy" class="hero-logo">
             <h1>Congelados Rochy</h1>
             <p class="hero-tagline">Los mejores productos congelados para toda tu familia</p>
             <p class="hero-sub">Deditos, empanadas, panzerottis y pastelitos frescos y deliciosos</p>
@@ -77,7 +88,7 @@
                 <div class="products-grid">
                     <div class="product-card" onclick="openModal('deditos-queso')">
                         <div class="product-image">
-                            <img src="IMAGENES/IMG_20250623_120956_100.jpg" alt="Deditos de Queso">
+                            <img src="IMAGENES/IMG_20250623_120956_100.jpg" loading="lazy" alt="Deditos de Queso">
                             <div class="product-badge">Popular</div>
                         </div>
                         <div class="product-info">
@@ -89,7 +100,7 @@
                     </div>
                     <div class="product-card" onclick="openModal('deditos-bocadillo')">
                         <div class="product-image">
-                            <img src="IMAGENES/IMG_20250623_120956_100.jpg" alt="Deditos de Bocadillo">
+                            <img src="IMAGENES/IMG_20250623_120956_100.jpg" loading="lazy" alt="Deditos de Bocadillo">
                         </div>
                         <div class="product-info">
                             <h4>Deditos de Bocadillo</h4>
@@ -100,7 +111,7 @@
                     </div>
                     <div class="product-card" onclick="openModal('deditos-especiales')">
                         <div class="product-image">
-                            <img src="IMAGENES/IMG_20250623_120956_100.jpg" alt="Deditos Especiales">
+                            <img src="IMAGENES/IMG_20250623_120956_100.jpg" loading="lazy" alt="Deditos Especiales">
                             <div class="product-badge badge-new">Especial</div>
                         </div>
                         <div class="product-info">
@@ -125,7 +136,7 @@
                 <div class="products-grid">
                     <div class="product-card" onclick="openModal('empanadas-pollo')">
                         <div class="product-image">
-                            <img src="IMAGENES/EMPANADAS.jpeg" alt="Empanadas de Pollo">
+                            <img src="IMAGENES/EMPANADAS.jpeg" loading="lazy" alt="Empanadas de Pollo">
                             <div class="product-badge">Favorita</div>
                         </div>
                         <div class="product-info">
@@ -137,7 +148,7 @@
                     </div>
                     <div class="product-card" onclick="openModal('empanadas-hawaianas')">
                         <div class="product-image">
-                            <img src="IMAGENES/EMPANADAS.jpeg" alt="Empanadas Hawaianas">
+                            <img src="IMAGENES/EMPANADAS.jpeg" loading="lazy" alt="Empanadas Hawaianas">
                         </div>
                         <div class="product-info">
                             <h4>Empanadas Hawaianas</h4>
@@ -148,7 +159,7 @@
                     </div>
                     <div class="product-card" onclick="openModal('empanadas-jamon-queso')">
                         <div class="product-image">
-                            <img src="IMAGENES/EMPANADAS.jpeg" alt="Empanadas Jamon Queso">
+                            <img src="IMAGENES/EMPANADAS.jpeg" loading="lazy" alt="Empanadas Jamon Queso">
                         </div>
                         <div class="product-info">
                             <h4>Empanadas Jamon Queso</h4>
@@ -159,7 +170,7 @@
                     </div>
                     <div class="product-card" onclick="openModal('empanadas-especiales')">
                         <div class="product-image">
-                            <img src="IMAGENES/EMPANADAS.jpeg" alt="Empanadas Especiales">
+                            <img src="IMAGENES/EMPANADAS.jpeg" loading="lazy" alt="Empanadas Especiales">
                             <div class="product-badge badge-new">Especial</div>
                         </div>
                         <div class="product-info">
@@ -184,7 +195,7 @@
                 <div class="products-grid">
                     <div class="product-card product-card-featured" onclick="openModal('panzerottis')">
                         <div class="product-image">
-                            <img src="IMAGENES/IMG_20250623_121049_763.jpg" alt="Panzerottis">
+                            <img src="IMAGENES/IMG_20250623_121049_763.jpg" loading="lazy" alt="Panzerottis">
                             <div class="product-badge badge-premium">Premium</div>
                         </div>
                         <div class="product-info">
@@ -209,7 +220,7 @@
                 <div class="products-grid">
                     <div class="product-card" onclick="openModal('pastelitos-pollo')">
                         <div class="product-image">
-                            <img src="IMAGENES/PASTELITOS.jpg" alt="Pastelitos de Pollo">
+                            <img src="IMAGENES/PASTELITOS.jpg" loading="lazy" alt="Pastelitos de Pollo">
                         </div>
                         <div class="product-info">
                             <h4>Pastelitos de Pollo</h4>
@@ -220,7 +231,7 @@
                     </div>
                     <div class="product-card" onclick="openModal('pastelitos-jamon-queso')">
                         <div class="product-image">
-                            <img src="IMAGENES/PASTELITOS.jpg" alt="Pastelitos Jamon Queso">
+                            <img src="IMAGENES/PASTELITOS.jpg" loading="lazy" alt="Pastelitos Jamon Queso">
                         </div>
                         <div class="product-info">
                             <h4>Pastelitos Jamon Queso</h4>
@@ -231,7 +242,7 @@
                     </div>
                     <div class="product-card" onclick="openModal('pastelitos-especiales')">
                         <div class="product-image">
-                            <img src="IMAGENES/PASTELITOS.jpg" alt="Pastelitos Especiales">
+                            <img src="IMAGENES/PASTELITOS.jpg" loading="lazy" alt="Pastelitos Especiales">
                             <div class="product-badge badge-new">Especial</div>
                         </div>
                         <div class="product-info">
@@ -243,7 +254,7 @@
                     </div>
                     <div class="product-card" onclick="openModal('pastelitos-hawaianos')">
                         <div class="product-image">
-                            <img src="IMAGENES/PASTELITOS.jpg" alt="Pastelitos Hawaianos">
+                            <img src="IMAGENES/PASTELITOS.jpg" loading="lazy" alt="Pastelitos Hawaianos">
                         </div>
                         <div class="product-info">
                             <h4>Pastelitos Hawaianos</h4>
@@ -269,7 +280,7 @@
             <div class="pasabocas-banner">
                 <div class="pasabocas-banner-content">
                     <div class="pasabocas-banner-img">
-                        <img src="IMAGENES/IMG_20250623_121007_772.jpg" alt="Pasabocas para eventos">
+                        <img src="IMAGENES/IMG_20250623_121007_772.jpg" loading="lazy" alt="Pasabocas para eventos">
                     </div>
                     <div class="pasabocas-banner-text">
                         <h3>Ideal para tus eventos</h3>
@@ -320,7 +331,7 @@
                     <a href="pedidos.html" class="btn-primary"><i class="fas fa-shopping-cart"></i> Haz tu pedido ahora</a>
                 </div>
                 <div class="about-image">
-                    <img src="IMAGENES/IMG_20250623_094357_918.jpg" alt="Congelados Rochy" class="about-img">
+                    <img src="IMAGENES/IMG_20250623_094357_918.jpg" loading="lazy" alt="Congelados Rochy" class="about-img">
                 </div>
             </div>
         </div>
@@ -363,7 +374,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">
-                    <img src="IMAGENES/LOGO.jpeg" alt="Congelados Rochy" class="footer-logo-img">
+                    <img src="IMAGENES/LOGO.jpeg" loading="lazy" alt="Congelados Rochy" class="footer-logo-img">
                     <span class="footer-logo-text">Congelados <strong>Rochy</strong></span>
                 </div>
                 <div class="footer-social">
@@ -459,6 +470,33 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeAdminLogin();
         });
+
+        // Loading screen
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Back to top button
+        window.addEventListener('scroll', function() {
+            var btn = document.getElementById('backToTop');
+            if (btn && window.pageYOffset > 300) {
+                btn.classList.add('visible');
+            } else if (btn) {
+                btn.classList.remove('visible');
+            }
+        });
     </script>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/573117795937" target="_blank" class="whatsapp-float">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <i class="fas fa-chevron-up"></i>
+    </button>
 </body>
 </html>

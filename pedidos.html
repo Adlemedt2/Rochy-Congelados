@@ -9,19 +9,36 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <img src="IMAGENES/LOGO.jpeg" alt="Congelados Rochy" class="loading-logo">
+            <div class="loading-bar">
+                <div class="loading-bar-fill"></div>
+            </div>
+            <p>Cargando...</p>
+        </div>
+    </div>
+
     <!-- Header -->
-    <header class="header">
+    <header class="header header-solid">
         <div class="container">
             <div class="logo">
-                <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-snowflake"></i>
-                    <span>Congelados Rochy</span>
+                <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                    <img src="IMAGENES/LOGO.jpeg" alt="Congelados Rochy" class="logo-img">
+                    <span class="logo-text">Congelados <strong>Rochy</strong></span>
                 </a>
             </div>
             <nav class="nav">
-                <a href="index.html">Volver al Inicio</a>
+                <a href="index.html">Inicio</a>
+                <a href="index.html#productos">Productos</a>
+                <a href="index.html#contacto">Contacto</a>
+                <a href="pedidos.html" class="nav-btn">Hacer Pedido</a>
                 <button class="nav-btn-admin" onclick="showAdminLogin()">Admin</button>
             </nav>
+            <button class="menu-toggle" aria-label="Menu" onclick="document.querySelector('.nav').classList.toggle('active')">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </header>
 
@@ -500,6 +517,35 @@
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeAdminLogin();
+        });
+    </script>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/573117795937" target="_blank" class="whatsapp-float">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script>
+        // Loading screen
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Header solid + back to top
+        window.addEventListener('scroll', function() {
+            var btn = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                btn.classList.add('visible');
+            } else {
+                btn.classList.remove('visible');
+            }
         });
     </script>
 </body>

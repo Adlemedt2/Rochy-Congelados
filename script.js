@@ -290,6 +290,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // Header shrink on scroll
 const header = document.querySelector('.header');
+const hero = document.querySelector('.hero');
 let lastScroll = 0;
 
 window.addEventListener('scroll', function() {
@@ -300,6 +301,11 @@ window.addEventListener('scroll', function() {
         header.classList.add('header-scrolled');
     } else {
         header.classList.remove('header-scrolled');
+    }
+
+    // Parallax effect on hero
+    if (hero && currentScroll < window.innerHeight) {
+        hero.style.backgroundPositionY = (currentScroll * 0.5) + 'px';
     }
 
     lastScroll = currentScroll;
