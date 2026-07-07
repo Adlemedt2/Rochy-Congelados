@@ -162,7 +162,10 @@
                     <div class="form-group" style="margin-bottom:15px;">
                         <label style="font-weight:500; margin-bottom:5px; display:block;">O subir imagen</label>
                         <input type="file" id="promoImageFile" accept="image/*" onchange="previewImage(this, 'promoPreview')" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
-                        <img id="promoPreview" style="display:none; margin-top:10px; max-width:100%; border-radius:10px;">
+                        <div id="promoPreviewContainer" style="display:none; margin-top:10px; text-align:center; background:#f5f5f5; padding:10px; border-radius:10px;">
+                            <img id="promoPreview" style="max-width:100%; max-height:150px; border-radius:10px;">
+                            <p style="margin-top:8px; color:#666; font-size:0.8rem;">Vista previa de la imagen</p>
+                        </div>
                     </div>
                     <div class="form-group" style="margin-bottom:15px;">
                         <label style="font-weight:500; margin-bottom:5px; display:block;">Valido hasta</label>
@@ -419,7 +422,8 @@
             document.getElementById('promoImageUrl').value = '';
             document.getElementById('promoValidUntil').value = '';
             document.getElementById('promoEditId').value = '';
-            document.getElementById('promoPreview').style.display = 'none';
+            document.getElementById('promoPreview').src = '';
+            document.getElementById('promoPreviewContainer').style.display = 'none';
             document.getElementById('promoImageFile').value = '';
             document.getElementById('promoModal').classList.add('active');
         }
@@ -435,7 +439,7 @@
             document.getElementById('promoValidUntil').value = item.validUntil || '';
             document.getElementById('promoEditId').value = item.id;
             document.getElementById('promoPreview').src = item.imageUrl || '';
-            document.getElementById('promoPreview').style.display = item.imageUrl ? 'block' : 'none';
+            document.getElementById('promoPreviewContainer').style.display = item.imageUrl ? 'block' : 'none';
             document.getElementById('promoModal').classList.add('active');
         }
 
