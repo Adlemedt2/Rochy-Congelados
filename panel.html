@@ -131,6 +131,118 @@
         </div>
     </section>
 
+    <!-- Content Management Section -->
+    <section class="panel-section">
+        <div class="container">
+            <div class="panel-header">
+                <h1><i class="fas fa-images"></i> Gestion de Contenido</h1>
+                <p style="color:#888;">Administra las imagenes de la marquesina y las promociones de la pagina principal</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="content-tabs">
+                <button class="tab-btn active" onclick="showTab('carousel')"><i class="fas fa-film"></i> Marquesina</button>
+                <button class="tab-btn" onclick="showTab('promotions')"><i class="fas fa-fire"></i> Promociones</button>
+            </div>
+
+            <!-- Carousel Tab -->
+            <div id="tab-carousel" class="tab-content active">
+                <div class="content-header">
+                    <h2><i class="fas fa-images"></i> Imagenes de Marquesina</h2>
+                    <button class="btn-primary" onclick="showAddCarouselModal()"><i class="fas fa-plus"></i> Agregar Imagen</button>
+                </div>
+                <div id="carouselList" class="content-list">
+                    <p class="empty-orders">No hay imagenes en la marquesina.</p>
+                </div>
+            </div>
+
+            <!-- Promotions Tab -->
+            <div id="tab-promotions" class="tab-content" style="display:none;">
+                <div class="content-header">
+                    <h2><i class="fas fa-fire"></i> Promociones Activas</h2>
+                    <button class="btn-primary" onclick="showAddPromoModal()"><i class="fas fa-plus"></i> Agregar Promocion</button>
+                </div>
+                <div id="promotionsList" class="content-list">
+                    <p class="empty-orders">No hay promociones activas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add Carousel Item Modal -->
+    <div id="carouselModal" class="modal">
+        <div class="modal-content modal-login" style="max-width:500px;">
+            <button class="modal-close" onclick="closeModal('carouselModal')">&times;</button>
+            <div class="login-box" style="padding:30px;">
+                <h2 style="margin-bottom:20px;"><i class="fas fa-image" style="color:#ff6b35;"></i> Agregar a Marquesina</h2>
+                <form onsubmit="saveCarouselItem(event)" style="text-align:left;">
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Titulo</label>
+                        <input type="text" id="carouselTitle" placeholder="Ej: Deditos de Queso" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">URL de imagen</label>
+                        <input type="url" id="carouselImageUrl" placeholder="https://..." style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">O subir imagen</label>
+                        <input type="file" id="carouselImageFile" accept="image/*" onchange="previewImage(this, 'carouselPreview')" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                        <img id="carouselPreview" style="display:none; margin-top:10px; max-width:100%; border-radius:10px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Link (opcional)</label>
+                        <input type="text" id="carouselLink" placeholder="Ej: #productos" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Orden</label>
+                        <input type="number" id="carouselOrder" value="1" min="1" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <input type="hidden" id="carouselEditId">
+                    <button type="submit" class="btn-primary" style="width:100%; justify-content:center;"><i class="fas fa-save"></i> Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Promotion Modal -->
+    <div id="promoModal" class="modal">
+        <div class="modal-content modal-login" style="max-width:500px;">
+            <button class="modal-close" onclick="closeModal('promoModal')">&times;</button>
+            <div class="login-box" style="padding:30px;">
+                <h2 style="margin-bottom:20px;"><i class="fas fa-fire" style="color:#ff6b35;"></i> Agregar Promocion</h2>
+                <form onsubmit="savePromotionItem(event)" style="text-align:left;">
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Titulo</label>
+                        <input type="text" id="promoTitle" placeholder="Ej: 2x1 en Empanadas" required style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Descripcion</label>
+                        <textarea id="promoDescription" rows="2" placeholder="Detalle de la promocion..." style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;"></textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Descuento</label>
+                        <input type="text" id="promoDiscount" placeholder="Ej: 2x1, 30% OFF" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">URL de imagen</label>
+                        <input type="url" id="promoImageUrl" placeholder="https://..." style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">O subir imagen</label>
+                        <input type="file" id="promoImageFile" accept="image/*" onchange="previewImage(this, 'promoPreview')" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                        <img id="promoPreview" style="display:none; margin-top:10px; max-width:100%; border-radius:10px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Valido hasta</label>
+                        <input type="date" id="promoValidUntil" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <input type="hidden" id="promoEditId">
+                    <button type="submit" class="btn-primary" style="width:100%; justify-content:center;"><i class="fas fa-save"></i> Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Order Detail Modal -->
     <div id="orderModal" class="modal">
         <div class="modal-content">
@@ -155,6 +267,7 @@
         </div>
     </footer>
 
+    <script src="cloud.js"></script>
     <script src="panel.js"></script>
     <script>
         const ADMIN_PASSWORD = 'rochy2026';

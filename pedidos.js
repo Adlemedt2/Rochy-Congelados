@@ -1,37 +1,3 @@
-// ===== JSONBIN CONFIG =====
-const JSONBIN_API_KEY = '$2a$10$Lze98Tu5N9fGvctl0MLSA0m.VvyI9llQdZe03Bnv1kLJmdigqDHHu';
-const JSONBIN_BIN_ID = '6a4c1292da38895dfe376c91';
-const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID;
-
-// ===== CLOUD FUNCTIONS =====
-async function fetchOrders() {
-    try {
-        const res = await fetch(JSONBIN_URL + '/latest', {
-            headers: { 'X-Master-Key': JSONBIN_API_KEY }
-        });
-        const data = await res.json();
-        return data.record.orders || [];
-    } catch(e) {
-        console.error('Error fetching orders:', e);
-        return [];
-    }
-}
-
-async function saveOrdersToCloud(orders) {
-    try {
-        await fetch(JSONBIN_URL, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': JSONBIN_API_KEY
-            },
-            body: JSON.stringify({ orders: orders })
-        });
-    } catch(e) {
-        console.error('Error saving orders:', e);
-    }
-}
-
 // ===== CONFIGURABLE PRICES =====
 let config = {
     deliveryCost: 3000,      // Costo domicilio

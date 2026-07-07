@@ -1,37 +1,3 @@
-// ===== JSONBIN CONFIG =====
-const JSONBIN_API_KEY = '$2a$10$Lze98Tu5N9fGvctl0MLSA0m.VvyI9llQdZe03Bnv1kLJmdigqDHHu';
-const JSONBIN_BIN_ID = '6a4c1292da38895dfe376c91';
-const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID;
-
-// ===== CLOUD FUNCTIONS =====
-async function fetchOrders() {
-    try {
-        const res = await fetch(JSONBIN_URL + '/latest', {
-            headers: { 'X-Master-Key': JSONBIN_API_KEY }
-        });
-        const data = await res.json();
-        return data.record.orders || [];
-    } catch(e) {
-        console.error('Error fetching orders:', e);
-        return [];
-    }
-}
-
-async function saveOrdersToCloud(orders) {
-    try {
-        await fetch(JSONBIN_URL, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': JSONBIN_API_KEY
-            },
-            body: JSON.stringify({ orders: orders })
-        });
-    } catch(e) {
-        console.error('Error saving orders:', e);
-    }
-}
-
 // ===== STATS =====
 async function updateStats() {
     const orders = await fetchOrders();
@@ -272,4 +238,250 @@ document.getElementById('orderModal').addEventListener('click', function(e) {
 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeOrderModal();
+});
+
+// ===== CONTENT MANAGEMENT: TABS =====
+function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(function(el) { el.style.display = 'none'; });
+    document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
+    document.getElementById('tab-' + tabName).style.display = 'block';
+    event.target.classList.add('active');
+
+    if (tabName === 'carousel') renderCarouselList();
+    if (tabName === 'promotions') renderPromotionsList();
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+function previewImage(input, previewId) {
+    var preview = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// ===== CAROUSEL MANAGEMENT =====
+async function renderCarouselList() {
+    var items = await fetchCarousel();
+    var container = document.getElementById('carouselList');
+
+    if (items.length === 0) {
+        container.innerHTML = '<p class="empty-orders">No hay imagenes en la marquesina.</p>';
+        return;
+    }
+
+    items.sort(function(a, b) { return a.order - b.order; });
+
+    container.innerHTML = items.map(function(item) {
+        return '<div class="content-card">' +
+            '<img src="' + (item.imageUrl || '') + '" alt="' + (item.title || '') + '">' +
+            '<div class="content-card-info">' +
+                '<h4>' + (item.title || 'Sin titulo') + '</h4>' +
+                '<p>' + (item.link || 'Sin link') + ' | Orden: ' + item.order + '</p>' +
+                '<span class="' + (item.active ? 'status-active' : 'status-inactive') + '">' + (item.active ? 'Activa' : 'Inactiva') + '</span>' +
+            '</div>' +
+            '<div class="content-card-actions">' +
+                '<button class="btn-sm btn-view" onclick="toggleCarouselItem(\'' + item.id + '\', ' + !item.active + ')"><i class="fas fa-eye"></i></button>' +
+                '<button class="btn-sm btn-complete" onclick="editCarouselItem(\'' + item.id + '\')"><i class="fas fa-edit"></i></button>' +
+                '<button class="btn-sm btn-delete" onclick="deleteCarouselItem(\'' + item.id + '\')"><i class="fas fa-trash"></i></button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function showAddCarouselModal() {
+    document.getElementById('carouselTitle').value = '';
+    document.getElementById('carouselImageUrl').value = '';
+    document.getElementById('carouselLink').value = '';
+    document.getElementById('carouselOrder').value = '1';
+    document.getElementById('carouselEditId').value = '';
+    document.getElementById('carouselPreview').style.display = 'none';
+    document.getElementById('carouselModal').classList.add('active');
+}
+
+async function editCarouselItem(id) {
+    var items = await fetchCarousel();
+    var item = items.find(function(i) { return i.id === id; });
+    if (!item) return;
+
+    document.getElementById('carouselTitle').value = item.title || '';
+    document.getElementById('carouselImageUrl').value = item.imageUrl || '';
+    document.getElementById('carouselLink').value = item.link || '';
+    document.getElementById('carouselOrder').value = item.order || 1;
+    document.getElementById('carouselEditId').value = item.id;
+    document.getElementById('carouselPreview').src = item.imageUrl || '';
+    document.getElementById('carouselPreview').style.display = item.imageUrl ? 'block' : 'none';
+    document.getElementById('carouselModal').classList.add('active');
+}
+
+async function saveCarouselItem(e) {
+    e.preventDefault();
+    var items = await fetchCarousel();
+    var editId = document.getElementById('carouselEditId').value;
+    var imageUrl = document.getElementById('carouselImageUrl').value;
+
+    // If file selected, use preview as base64
+    var fileInput = document.getElementById('carouselImageFile');
+    if (fileInput.files && fileInput.files[0]) {
+        var preview = document.getElementById('carouselPreview');
+        imageUrl = preview.src;
+    }
+
+    var newItem = {
+        id: editId || 'c-' + Date.now(),
+        title: document.getElementById('carouselTitle').value,
+        imageUrl: imageUrl,
+        link: document.getElementById('carouselLink').value,
+        order: parseInt(document.getElementById('carouselOrder').value) || 1,
+        active: true
+    };
+
+    if (editId) {
+        var idx = items.findIndex(function(i) { return i.id === editId; });
+        if (idx !== -1) items[idx] = newItem;
+    } else {
+        items.push(newItem);
+    }
+
+    await saveCarousel(items);
+    closeModal('carouselModal');
+    renderCarouselList();
+}
+
+async function toggleCarouselItem(id, newActive) {
+    var items = await fetchCarousel();
+    var idx = items.findIndex(function(i) { return i.id === id; });
+    if (idx !== -1) {
+        items[idx].active = newActive;
+        await saveCarousel(items);
+        renderCarouselList();
+    }
+}
+
+async function deleteCarouselItem(id) {
+    if (!confirm('Eliminar esta imagen de la marquesina?')) return;
+    var items = await fetchCarousel();
+    items = items.filter(function(i) { return i.id !== id; });
+    await saveCarousel(items);
+    renderCarouselList();
+}
+
+// ===== PROMOTIONS MANAGEMENT =====
+async function renderPromotionsList() {
+    var items = await fetchPromotions();
+    var container = document.getElementById('promotionsList');
+
+    if (items.length === 0) {
+        container.innerHTML = '<p class="empty-orders">No hay promociones activas.</p>';
+        return;
+    }
+
+    container.innerHTML = items.map(function(item) {
+        var validity = item.validUntil ? new Date(item.validUntil).toLocaleDateString('es-VE') : 'Sin fecha';
+        return '<div class="content-card">' +
+            (item.imageUrl ? '<img src="' + item.imageUrl + '" alt="' + item.title + '">' : '') +
+            '<div class="content-card-info">' +
+                '<h4>' + item.title + '</h4>' +
+                '<p>' + (item.discount || '') + ' | Valido hasta: ' + validity + '</p>' +
+                '<span class="' + (item.active ? 'status-active' : 'status-inactive') + '">' + (item.active ? 'Activa' : 'Inactiva') + '</span>' +
+            '</div>' +
+            '<div class="content-card-actions">' +
+                '<button class="btn-sm btn-view" onclick="togglePromoItem(\'' + item.id + '\', ' + !item.active + ')"><i class="fas fa-eye"></i></button>' +
+                '<button class="btn-sm btn-complete" onclick="editPromoItem(\'' + item.id + '\')"><i class="fas fa-edit"></i></button>' +
+                '<button class="btn-sm btn-delete" onclick="deletePromoItem(\'' + item.id + '\')"><i class="fas fa-trash"></i></button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function showAddPromoModal() {
+    document.getElementById('promoTitle').value = '';
+    document.getElementById('promoDescription').value = '';
+    document.getElementById('promoDiscount').value = '';
+    document.getElementById('promoImageUrl').value = '';
+    document.getElementById('promoValidUntil').value = '';
+    document.getElementById('promoEditId').value = '';
+    document.getElementById('promoPreview').style.display = 'none';
+    document.getElementById('promoModal').classList.add('active');
+}
+
+async function editPromoItem(id) {
+    var items = await fetchPromotions();
+    var item = items.find(function(i) { return i.id === id; });
+    if (!item) return;
+
+    document.getElementById('promoTitle').value = item.title || '';
+    document.getElementById('promoDescription').value = item.description || '';
+    document.getElementById('promoDiscount').value = item.discount || '';
+    document.getElementById('promoImageUrl').value = item.imageUrl || '';
+    document.getElementById('promoValidUntil').value = item.validUntil || '';
+    document.getElementById('promoEditId').value = item.id;
+    document.getElementById('promoPreview').src = item.imageUrl || '';
+    document.getElementById('promoPreview').style.display = item.imageUrl ? 'block' : 'none';
+    document.getElementById('promoModal').classList.add('active');
+}
+
+async function savePromotionItem(e) {
+    e.preventDefault();
+    var items = await fetchPromotions();
+    var editId = document.getElementById('promoEditId').value;
+    var imageUrl = document.getElementById('promoImageUrl').value;
+
+    var fileInput = document.getElementById('promoImageFile');
+    if (fileInput.files && fileInput.files[0]) {
+        var preview = document.getElementById('promoPreview');
+        imageUrl = preview.src;
+    }
+
+    var newItem = {
+        id: editId || 'p-' + Date.now(),
+        title: document.getElementById('promoTitle').value,
+        description: document.getElementById('promoDescription').value,
+        discount: document.getElementById('promoDiscount').value,
+        imageUrl: imageUrl,
+        validUntil: document.getElementById('promoValidUntil').value,
+        active: true
+    };
+
+    if (editId) {
+        var idx = items.findIndex(function(i) { return i.id === editId; });
+        if (idx !== -1) items[idx] = newItem;
+    } else {
+        items.push(newItem);
+    }
+
+    await savePromotions(items);
+    closeModal('promoModal');
+    renderPromotionsList();
+}
+
+async function togglePromoItem(id, newActive) {
+    var items = await fetchPromotions();
+    var idx = items.findIndex(function(i) { return i.id === id; });
+    if (idx !== -1) {
+        items[idx].active = newActive;
+        await savePromotions(items);
+        renderPromotionsList();
+    }
+}
+
+async function deletePromoItem(id) {
+    if (!confirm('Eliminar esta promocion?')) return;
+    var items = await fetchPromotions();
+    items = items.filter(function(i) { return i.id !== id; });
+    await savePromotions(items);
+    renderPromotionsList();
+}
+
+// Load content on panel load
+document.addEventListener('DOMContentLoaded', function() {
+    renderCarouselList();
+    renderPromotionsList();
 });

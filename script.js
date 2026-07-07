@@ -356,3 +356,76 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// ===== DYNAMIC CONTENT: CAROUSEL =====
+async function loadCarousel() {
+    const track = document.getElementById('marqueeTrack');
+    if (!track) return;
+
+    const items = await fetchCarousel();
+    const activeItems = items.filter(function(item) { return item.active; }).sort(function(a, b) { return a.order - b.order; });
+
+    if (activeItems.length === 0) {
+        track.innerHTML = '<div class="marquee-item"><span>Congelados Rochy - Los mejores productos congelados</span></div>';
+        return;
+    }
+
+    // Duplicate items for infinite scroll effect
+    var html = '';
+    var allItems = activeItems.concat(activeItems);
+    allItems.forEach(function(item) {
+        html += '<div class="marquee-item">';
+        if (item.imageUrl) {
+            html += '<img src="' + item.imageUrl + '" alt="' + (item.title || '') + '">';
+        }
+        if (item.title) {
+            html += '<span>' + item.title + '</span>';
+        }
+        html += '</div>';
+    });
+    track.innerHTML = html;
+}
+
+// ===== DYNAMIC CONTENT: PROMOTIONS =====
+async function loadPromotions() {
+    var grid = document.getElementById('promotionsGrid');
+    if (!grid) return;
+
+    var promos = await fetchPromotions();
+    var activePromos = promos.filter(function(p) { return p.active; });
+
+    if (activePromos.length === 0) {
+        document.getElementById('promociones').style.display = 'none';
+        return;
+    }
+
+    var html = '';
+    activePromos.forEach(function(promo) {
+        html += '<div class="promotion-card">';
+        if (promo.imageUrl) {
+            html += '<div class="promo-image"><img src="' + promo.imageUrl + '" alt="' + promo.title + '">';
+            if (promo.discount) {
+                html += '<span class="promo-badge">' + promo.discount + '</span>';
+            }
+            html += '</div>';
+        }
+        html += '<div class="promo-content">';
+        html += '<h3>' + promo.title + '</h3>';
+        if (promo.description) {
+            html += '<p>' + promo.description + '</p>';
+        }
+        if (promo.validUntil) {
+            var date = new Date(promo.validUntil);
+            var dateStr = date.toLocaleDateString('es-VE', { day: '2-digit', month: 'long', year: 'numeric' });
+            html += '<span class="promo-validity">Valido hasta: ' + dateStr + '</span>';
+        }
+        html += '</div></div>';
+    });
+    grid.innerHTML = html;
+}
+
+// Load dynamic content on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadCarousel();
+    loadPromotions();
+});
