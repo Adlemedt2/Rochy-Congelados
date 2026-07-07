@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congelados Rochy - Gestion de Contenido</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <img src="IMAGENES/LOGO.jpeg" alt="Congelados Rochy" class="loading-logo">
+            <div class="loading-bar">
+                <div class="loading-bar-fill"></div>
+            </div>
+            <p>Cargando...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header header-solid">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                    <img src="IMAGENES/LOGO.jpeg" alt="Congelados Rochy" class="logo-img">
+                    <span class="logo-text">Congelados <strong>Rochy</strong></span>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Inicio</a>
+                <a href="panel.html">Pedidos</a>
+                <a href="contenido.html" class="nav-btn">Contenido</a>
+                <button class="nav-btn-admin" onclick="showAdminLogin()">Admin</button>
+            </nav>
+            <button class="menu-toggle" aria-label="Menu" onclick="document.querySelector('.nav').classList.toggle('active')">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <div class="login-icon"><i class="fas fa-shield-alt"></i></div>
+            <h2>Gestion de Contenido</h2>
+            <p>Ingresa la contraseña para acceder</p>
+            <form onsubmit="checkPanelPassword(event)">
+                <input type="password" id="panelPassword" placeholder="Contraseña" autocomplete="off">
+                <p id="panelLoginError" class="login-error" style="display:none;">Contraseña incorrecta</p>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Ingresar
+                </button>
+            </form>
+            <a href="index.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Volver al Inicio
+            </a>
+        </div>
+    </div>
+
+    <!-- Content Management -->
+    <section id="panelContent" class="panel-section" style="display:none;">
+        <div class="container">
+            <div class="panel-header">
+                <h1><i class="fas fa-images"></i> Gestion de Contenido</h1>
+                <p style="color:#888;">Administra las imagenes de la marquesina y las promociones de la pagina principal</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="content-tabs">
+                <button class="tab-btn active" onclick="showTab('carousel')"><i class="fas fa-film"></i> Marquesina</button>
+                <button class="tab-btn" onclick="showTab('promotions')"><i class="fas fa-fire"></i> Promociones</button>
+            </div>
+
+            <!-- Carousel Tab -->
+            <div id="tab-carousel" class="tab-content active">
+                <div class="content-header">
+                    <h2><i class="fas fa-images"></i> Imagenes de Marquesina</h2>
+                    <button class="btn-primary" onclick="showAddCarouselModal()"><i class="fas fa-plus"></i> Agregar Imagen</button>
+                </div>
+                <div id="carouselList" class="content-list">
+                    <p class="empty-orders">Cargando...</p>
+                </div>
+            </div>
+
+            <!-- Promotions Tab -->
+            <div id="tab-promotions" class="tab-content" style="display:none;">
+                <div class="content-header">
+                    <h2><i class="fas fa-fire"></i> Promociones Activas</h2>
+                    <button class="btn-primary" onclick="showAddPromoModal()"><i class="fas fa-plus"></i> Agregar Promocion</button>
+                </div>
+                <div id="promotionsList" class="content-list">
+                    <p class="empty-orders">Cargando...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add Carousel Item Modal -->
+    <div id="carouselModal" class="modal">
+        <div class="modal-content modal-login" style="max-width:500px;">
+            <button class="modal-close" onclick="closeModal('carouselModal')">&times;</button>
+            <div class="login-box" style="padding:30px;">
+                <h2 style="margin-bottom:20px;"><i class="fas fa-image" style="color:#ff6b35;"></i> Agregar a Marquesina</h2>
+                <form onsubmit="saveCarouselItem(event)" style="text-align:left;">
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Titulo</label>
+                        <input type="text" id="carouselTitle" placeholder="Ej: Deditos de Queso" required style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">URL de imagen</label>
+                        <input type="url" id="carouselImageUrl" placeholder="https://..." style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">O subir imagen</label>
+                        <input type="file" id="carouselImageFile" accept="image/*" onchange="previewImage(this, 'carouselPreview')" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                        <img id="carouselPreview" style="display:none; margin-top:10px; max-width:100%; border-radius:10px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Link (opcional)</label>
+                        <input type="text" id="carouselLink" placeholder="Ej: #productos" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Orden</label>
+                        <input type="number" id="carouselOrder" value="1" min="1" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <input type="hidden" id="carouselEditId">
+                    <button type="submit" class="btn-primary" style="width:100%; justify-content:center;"><i class="fas fa-save"></i> Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Promotion Modal -->
+    <div id="promoModal" class="modal">
+        <div class="modal-content modal-login" style="max-width:500px;">
+            <button class="modal-close" onclick="closeModal('promoModal')">&times;</button>
+            <div class="login-box" style="padding:30px;">
+                <h2 style="margin-bottom:20px;"><i class="fas fa-fire" style="color:#ff6b35;"></i> Agregar Promocion</h2>
+                <form onsubmit="savePromotionItem(event)" style="text-align:left;">
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Titulo</label>
+                        <input type="text" id="promoTitle" placeholder="Ej: 2x1 en Empanadas" required style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Descripcion</label>
+                        <textarea id="promoDescription" rows="2" placeholder="Detalle de la promocion..." style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;"></textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Descuento</label>
+                        <input type="text" id="promoDiscount" placeholder="Ej: 2x1, 30% OFF" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">URL de imagen</label>
+                        <input type="url" id="promoImageUrl" placeholder="https://..." style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">O subir imagen</label>
+                        <input type="file" id="promoImageFile" accept="image/*" onchange="previewImage(this, 'promoPreview')" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                        <img id="promoPreview" style="display:none; margin-top:10px; max-width:100%; border-radius:10px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="font-weight:500; margin-bottom:5px; display:block;">Valido hasta</label>
+                        <input type="date" id="promoValidUntil" style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins;">
+                    </div>
+                    <input type="hidden" id="promoEditId">
+                    <button type="submit" class="btn-primary" style="width:100%; justify-content:center;"><i class="fas fa-save"></i> Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/573117795937" target="_blank" class="whatsapp-float">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="cloud.js"></script>
+    <script>
+        const ADMIN_PASSWORD = 'rochy2026';
+
+        // Check if already authenticated
+        if (sessionStorage.getItem('rochyAdminAuth') === 'true') {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('panelContent').style.display = 'block';
+            loadAllContent();
+        }
+
+        function checkPanelPassword(e) {
+            e.preventDefault();
+            const pass = document.getElementById('panelPassword').value;
+            if (pass === ADMIN_PASSWORD) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('panelContent').style.display = 'block';
+                sessionStorage.setItem('rochyAdminAuth', 'true');
+                loadAllContent();
+            } else {
+                document.getElementById('panelLoginError').style.display = 'block';
+                document.getElementById('panelPassword').value = '';
+                document.getElementById('panelPassword').focus();
+            }
+        }
+
+        function showAdminLogin() {
+            sessionStorage.removeItem('rochyAdminAuth');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('panelContent').style.display = 'none';
+        }
+
+        // Loading screen
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1500);
+        });
+
+        // ===== TABS =====
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(function(el) { el.style.display = 'none'; });
+            document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
+            document.getElementById('tab-' + tabName).style.display = 'block';
+            event.target.classList.add('active');
+            if (tabName === 'carousel') renderCarouselList();
+            if (tabName === 'promotions') renderPromotionsList();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function previewImage(input, previewId) {
+            var preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // ===== LOAD ALL CONTENT =====
+        async function loadAllContent() {
+            await renderCarouselList();
+            await renderPromotionsList();
+        }
+
+        // ===== CAROUSEL MANAGEMENT =====
+        async function renderCarouselList() {
+            var container = document.getElementById('carouselList');
+            try {
+                var items = await fetchCarousel();
+                if (items.length === 0) {
+                    container.innerHTML = '<p class="empty-orders">No hay imagenes en la marquesina. Agrega una para que aparezca en la pagina principal.</p>';
+                    return;
+                }
+                items.sort(function(a, b) { return a.order - b.order; });
+                container.innerHTML = items.map(function(item) {
+                    return '<div class="content-card">' +
+                        '<img src="' + (item.imageUrl || '') + '" alt="' + (item.title || '') + '">' +
+                        '<div class="content-card-info">' +
+                            '<h4>' + (item.title || 'Sin titulo') + '</h4>' +
+                            '<p>' + (item.link || 'Sin link') + ' | Orden: ' + item.order + '</p>' +
+                            '<span class="' + (item.active ? 'status-active' : 'status-inactive') + '">' + (item.active ? 'Activa' : 'Inactiva') + '</span>' +
+                        '</div>' +
+                        '<div class="content-card-actions">' +
+                            '<button class="btn-sm btn-view" onclick="toggleCarouselItem(\'' + item.id + '\', ' + !item.active + ')"><i class="fas fa-eye"></i></button>' +
+                            '<button class="btn-sm btn-complete" onclick="editCarouselItem(\'' + item.id + '\')"><i class="fas fa-edit"></i></button>' +
+                            '<button class="btn-sm btn-delete" onclick="deleteCarouselItem(\'' + item.id + '\')"><i class="fas fa-trash"></i></button>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            } catch(e) {
+                container.innerHTML = '<p class="empty-orders">Error al cargar imagenes.</p>';
+            }
+        }
+
+        function showAddCarouselModal() {
+            document.getElementById('carouselTitle').value = '';
+            document.getElementById('carouselImageUrl').value = '';
+            document.getElementById('carouselLink').value = '';
+            document.getElementById('carouselOrder').value = '1';
+            document.getElementById('carouselEditId').value = '';
+            document.getElementById('carouselPreview').style.display = 'none';
+            document.getElementById('carouselImageFile').value = '';
+            document.getElementById('carouselModal').classList.add('active');
+        }
+
+        async function editCarouselItem(id) {
+            var items = await fetchCarousel();
+            var item = items.find(function(i) { return i.id === id; });
+            if (!item) return;
+            document.getElementById('carouselTitle').value = item.title || '';
+            document.getElementById('carouselImageUrl').value = item.imageUrl || '';
+            document.getElementById('carouselLink').value = item.link || '';
+            document.getElementById('carouselOrder').value = item.order || 1;
+            document.getElementById('carouselEditId').value = item.id;
+            document.getElementById('carouselPreview').src = item.imageUrl || '';
+            document.getElementById('carouselPreview').style.display = item.imageUrl ? 'block' : 'none';
+            document.getElementById('carouselModal').classList.add('active');
+        }
+
+        async function saveCarouselItem(e) {
+            e.preventDefault();
+            var items = await fetchCarousel();
+            var editId = document.getElementById('carouselEditId').value;
+            var imageUrl = document.getElementById('carouselImageUrl').value;
+
+            var fileInput = document.getElementById('carouselImageFile');
+            if (fileInput.files && fileInput.files[0]) {
+                imageUrl = document.getElementById('carouselPreview').src;
+            }
+
+            if (!imageUrl) {
+                alert('Por favor ingresa una URL de imagen o sube una imagen.');
+                return;
+            }
+
+            var newItem = {
+                id: editId || 'c-' + Date.now(),
+                title: document.getElementById('carouselTitle').value,
+                imageUrl: imageUrl,
+                link: document.getElementById('carouselLink').value,
+                order: parseInt(document.getElementById('carouselOrder').value) || 1,
+                active: true
+            };
+
+            if (editId) {
+                var idx = items.findIndex(function(i) { return i.id === editId; });
+                if (idx !== -1) items[idx] = newItem;
+            } else {
+                items.push(newItem);
+            }
+
+            var result = await saveCarousel(items);
+            if (result) {
+                closeModal('carouselModal');
+                await renderCarouselList();
+                alert('Guardado exitosamente!');
+            } else {
+                alert('Error al guardar. Intenta de nuevo.');
+            }
+        }
+
+        async function toggleCarouselItem(id, newActive) {
+            var items = await fetchCarousel();
+            var idx = items.findIndex(function(i) { return i.id === id; });
+            if (idx !== -1) {
+                items[idx].active = newActive;
+                await saveCarousel(items);
+                await renderCarouselList();
+            }
+        }
+
+        async function deleteCarouselItem(id) {
+            if (!confirm('Eliminar esta imagen de la marquesina?')) return;
+            var items = await fetchCarousel();
+            items = items.filter(function(i) { return i.id !== id; });
+            await saveCarousel(items);
+            await renderCarouselList();
+        }
+
+        // ===== PROMOTIONS MANAGEMENT =====
+        async function renderPromotionsList() {
+            var container = document.getElementById('promotionsList');
+            try {
+                var items = await fetchPromotions();
+                if (items.length === 0) {
+                    container.innerHTML = '<p class="empty-orders">No hay promociones. Agrega una para que aparezca en la pagina principal.</p>';
+                    return;
+                }
+                container.innerHTML = items.map(function(item) {
+                    var validity = item.validUntil ? new Date(item.validUntil + 'T12:00:00').toLocaleDateString('es-VE', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Sin fecha';
+                    return '<div class="content-card">' +
+                        (item.imageUrl ? '<img src="' + item.imageUrl + '" alt="' + item.title + '">' : '<div style="width:80px;height:80px;background:#f0f0f0;border-radius:12px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-fire" style="color:#ff6b35;font-size:2rem;"></i></div>') +
+                        '<div class="content-card-info">' +
+                            '<h4>' + item.title + '</h4>' +
+                            '<p>' + (item.discount ? item.discount + ' | ' : '') + 'Valido hasta: ' + validity + '</p>' +
+                            '<span class="' + (item.active ? 'status-active' : 'status-inactive') + '">' + (item.active ? 'Activa' : 'Inactiva') + '</span>' +
+                        '</div>' +
+                        '<div class="content-card-actions">' +
+                            '<button class="btn-sm btn-view" onclick="togglePromoItem(\'' + item.id + '\', ' + !item.active + ')"><i class="fas fa-eye"></i></button>' +
+                            '<button class="btn-sm btn-complete" onclick="editPromoItem(\'' + item.id + '\')"><i class="fas fa-edit"></i></button>' +
+                            '<button class="btn-sm btn-delete" onclick="deletePromoItem(\'' + item.id + '\')"><i class="fas fa-trash"></i></button>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            } catch(e) {
+                container.innerHTML = '<p class="empty-orders">Error al cargar promociones.</p>';
+            }
+        }
+
+        function showAddPromoModal() {
+            document.getElementById('promoTitle').value = '';
+            document.getElementById('promoDescription').value = '';
+            document.getElementById('promoDiscount').value = '';
+            document.getElementById('promoImageUrl').value = '';
+            document.getElementById('promoValidUntil').value = '';
+            document.getElementById('promoEditId').value = '';
+            document.getElementById('promoPreview').style.display = 'none';
+            document.getElementById('promoImageFile').value = '';
+            document.getElementById('promoModal').classList.add('active');
+        }
+
+        async function editPromoItem(id) {
+            var items = await fetchPromotions();
+            var item = items.find(function(i) { return i.id === id; });
+            if (!item) return;
+            document.getElementById('promoTitle').value = item.title || '';
+            document.getElementById('promoDescription').value = item.description || '';
+            document.getElementById('promoDiscount').value = item.discount || '';
+            document.getElementById('promoImageUrl').value = item.imageUrl || '';
+            document.getElementById('promoValidUntil').value = item.validUntil || '';
+            document.getElementById('promoEditId').value = item.id;
+            document.getElementById('promoPreview').src = item.imageUrl || '';
+            document.getElementById('promoPreview').style.display = item.imageUrl ? 'block' : 'none';
+            document.getElementById('promoModal').classList.add('active');
+        }
+
+        async function savePromotionItem(e) {
+            e.preventDefault();
+            var items = await fetchPromotions();
+            var editId = document.getElementById('promoEditId').value;
+            var imageUrl = document.getElementById('promoImageUrl').value;
+
+            var fileInput = document.getElementById('promoImageFile');
+            if (fileInput.files && fileInput.files[0]) {
+                imageUrl = document.getElementById('promoPreview').src;
+            }
+
+            var newItem = {
+                id: editId || 'p-' + Date.now(),
+                title: document.getElementById('promoTitle').value,
+                description: document.getElementById('promoDescription').value,
+                discount: document.getElementById('promoDiscount').value,
+                imageUrl: imageUrl,
+                validUntil: document.getElementById('promoValidUntil').value,
+                active: true
+            };
+
+            if (editId) {
+                var idx = items.findIndex(function(i) { return i.id === editId; });
+                if (idx !== -1) items[idx] = newItem;
+            } else {
+                items.push(newItem);
+            }
+
+            var result = await savePromotions(items);
+            if (result) {
+                closeModal('promoModal');
+                await renderPromotionsList();
+                alert('Guardado exitosamente!');
+            } else {
+                alert('Error al guardar. Intenta de nuevo.');
+            }
+        }
+
+        async function togglePromoItem(id, newActive) {
+            var items = await fetchPromotions();
+            var idx = items.findIndex(function(i) { return i.id === id; });
+            if (idx !== -1) {
+                items[idx].active = newActive;
+                await savePromotions(items);
+                await renderPromotionsList();
+            }
+        }
+
+        async function deletePromoItem(id) {
+            if (!confirm('Eliminar esta promocion?')) return;
+            var items = await fetchPromotions();
+            items = items.filter(function(i) { return i.id !== id; });
+            await savePromotions(items);
+            await renderPromotionsList();
+        }
+
+        // Back to top
+        window.addEventListener('scroll', function() {
+            var btn = document.getElementById('backToTop');
+            if (btn && window.pageYOffset > 300) {
+                btn.classList.add('visible');
+            } else if (btn) {
+                btn.classList.remove('visible');
+            }
+        });
+    </script>
+</body>
+</html>

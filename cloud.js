@@ -1,5 +1,5 @@
 // ===== CLOUD CONFIG =====
-const JSONBIN_API_KEY = '$2a$10$Lze98Tu5N9fGvctl0MLSA0m.VvyI9llQdZe03Bnv1kLJmdigqDHHu';
+const JSONBIN_API_KEY = '$2a$10$Lze98Tu5N9fGvctlOMLSAOm.VvyI9llQdZeO3Bnv1kLJmdigqDHHu';
 const JSONBIN_BIN_ID = '6a4c1292da38895dfe376c91';
 const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID;
 
