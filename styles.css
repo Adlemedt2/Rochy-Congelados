@@ -2569,10 +2569,11 @@ body {
     padding: 20px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.06);
     border: 1px solid #f0f0f0;
     transition: all 0.3s;
+    overflow: hidden;
 }
 
 .content-card:hover {
@@ -2589,22 +2590,30 @@ body {
 
 .content-card-info {
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .content-card-info h4 {
     color: #333;
     font-size: 1rem;
     margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .content-card-info p {
     color: #888;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .content-card-actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-shrink: 0;
 }
 
@@ -2634,8 +2643,7 @@ body {
     }
 
     .content-card {
-        flex-direction: column;
-        text-align: center;
+        flex-wrap: wrap;
     }
 
     .content-card img {
@@ -2643,8 +2651,14 @@ body {
         height: 150px;
     }
 
+    .content-card-info {
+        width: 100%;
+    }
+
     .content-card-actions {
+        width: 100%;
         justify-content: center;
+        margin-top: 10px;
     }
 }
 
