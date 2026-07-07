@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congelados Rochy - Panel de Pedidos</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-snowflake"></i>
+                    <span>Congelados Rochy</span>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Inicio</a>
+                <a href="pedidos.html">Pedidos</a>
+                <a href="panel.html" class="nav-btn">Panel Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <div class="login-icon"><i class="fas fa-shield-alt"></i></div>
+            <h2>Panel Administrativo</h2>
+            <p>Ingresa la contraseña para acceder</p>
+            <form onsubmit="checkPanelPassword(event)">
+                <input type="password" id="panelPassword" placeholder="Contraseña" autocomplete="off">
+                <p id="panelLoginError" class="login-error" style="display:none;">Contraseña incorrecta</p>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Ingresar
+                </button>
+            </form>
+            <a href="index.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Volver al Inicio
+            </a>
+        </div>
+    </div>
+
+    <section class="panel-section" id="panelContent" style="display:none;">
+        <div class="container">
+            <div class="panel-header">
+                <h1><i class="fas fa-chart-bar"></i> Panel de Pedidos</h1>
+                <div class="panel-stats" id="panelStats">
+                    <div class="stat-card stat-pendientes">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <span class="stat-number" id="statPendientes">0</span>
+                            <span class="stat-label">Pendientes</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-completados">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <span class="stat-number" id="statCompletados">0</span>
+                            <span class="stat-label">Completados</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-cancelados">
+                        <i class="fas fa-times-circle"></i>
+                        <div>
+                            <span class="stat-number" id="statCancelados">0</span>
+                            <span class="stat-label">Cancelados</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-total">
+                        <i class="fas fa-dollar-sign"></i>
+                        <div>
+                            <span class="stat-number" id="statVentas">$0</span>
+                            <span class="stat-label">Ventas Totales</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="panel-filters">
+                <div class="filter-group">
+                    <label>Filtrar por estado:</label>
+                    <select id="filterStatus" onchange="renderOrders()">
+                        <option value="todos">Todos</option>
+                        <option value="pendiente" selected>Pendientes</option>
+                        <option value="completado">Completados</option>
+                        <option value="cancelado">Cancelados</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Buscar:</label>
+                    <input type="text" id="searchInput" placeholder="Nombre, telefono..." oninput="renderOrders()">
+                </div>
+                <button class="btn-danger" onclick="clearAllOrders()">
+                    <i class="fas fa-trash"></i> Limpiar Todo
+                </button>
+            </div>
+
+            <!-- Notification Banner -->
+            <div id="notifBanner" class="notif-banner" style="display:none;">
+                <i class="fas fa-bell"></i>
+                <span id="notifText"></span>
+                <button onclick="dismissNotif()"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- Orders List -->
+            <div id="ordersList" class="orders-list">
+                <p class="empty-orders">No hay pedidos registrados.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Order Detail Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeOrderModal()">&times;</button>
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-receipt"></i></div>
+                <h2 id="modalOrderId"></h2>
+            </div>
+            <div class="modal-body" id="modalOrderBody"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-snowflake"></i>
+                    <span>Congelados Rochy</span>
+                </div>
+                <p>&copy; 2026 Congelados Rochy. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="panel.js"></script>
+    <script>
+        const ADMIN_PASSWORD = 'rochy2026';
+
+        function checkPanelPassword(e) {
+            e.preventDefault();
+            const pass = document.getElementById('panelPassword').value;
+            if (pass === ADMIN_PASSWORD) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('panelContent').style.display = 'block';
+                sessionStorage.setItem('rochyAdminAuth', 'true');
+            } else {
+                document.getElementById('panelLoginError').style.display = 'block';
+                document.getElementById('panelPassword').value = '';
+                document.getElementById('panelPassword').focus();
+            }
+        }
+
+        // Check if already authenticated in this session
+        if (sessionStorage.getItem('rochyAdminAuth') === 'true') {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('panelContent').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

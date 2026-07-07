@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congelados Rochy - Hacer Pedido</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-snowflake"></i>
+                    <span>Congelados Rochy</span>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Volver al Inicio</a>
+                <button class="nav-btn-admin" onclick="showAdminLogin()">Admin</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Order Section -->
+    <section class="order-section">
+        <div class="container">
+            <h1 class="section-title">Formulario de Pedido</h1>
+            <p class="section-subtitle">Completa los datos y selecciona los productos que deseas. El total se calcula automaticamente.</p>
+
+            <!-- Config Bar (admin) -->
+            <div class="config-bar">
+                <button class="config-toggle" onclick="toggleConfig()">
+                    <i class="fas fa-cog"></i> Configurar Costos Adicionales
+                </button>
+                <div id="configPanel" class="config-panel" style="display:none;">
+                    <div class="config-grid">
+                        <div class="config-item">
+                            <label>Costo Domicilio ($)</label>
+                            <input type="number" id="cfgDelivery" value="3000" onchange="saveConfig()">
+                        </div>
+                        <div class="config-item">
+                            <label>Costo Recipiente ($)</label>
+                            <input type="number" id="cfgContainer" value="2000" onchange="saveConfig()">
+                        </div>
+                        <div class="config-item">
+                            <label>Costo Fritada Pasabocas ($/unidad)</label>
+                            <input type="number" id="cfgFrying" value="500" onchange="saveConfig()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="orderForm" class="order-form">
+                <!-- Customer Data -->
+                <div class="form-section">
+                    <h2><i class="fas fa-user"></i> Datos del Cliente</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="customerName">Nombre completo *</label>
+                            <input type="text" id="customerName" required placeholder="Ej: Juan Perez">
+                        </div>
+                        <div class="form-group">
+                            <label for="customerPhone">Telefono *</label>
+                            <input type="tel" id="customerPhone" required placeholder="Ej: 0412-1234567">
+                        </div>
+                        <div class="form-group">
+                            <label for="customerEmail">Email (opcional)</label>
+                            <input type="email" id="customerEmail" placeholder="Ej: correo@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="deliveryDate">Fecha de entrega *</label>
+                            <input type="date" id="deliveryDate" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Method -->
+                <div class="form-section">
+                    <h2><i class="fas fa-truck"></i> Metodo de Entrega</h2>
+                    <div class="delivery-options">
+                        <label class="delivery-option">
+                            <input type="radio" name="deliveryMethod" value="pickup" checked onchange="updateDelivery()">
+                            <div class="option-content">
+                                <i class="fas fa-store"></i>
+                                <span>Recoger en tienda</span>
+                                <small>Sin costo adicional</small>
+                            </div>
+                        </label>
+                        <label class="delivery-option">
+                            <input type="radio" name="deliveryMethod" value="delivery" onchange="updateDelivery()">
+                            <div class="option-content">
+                                <i class="fas fa-truck"></i>
+                                <span>Domicilio</span>
+                                <small id="deliveryCostLabel">Costo: $3.000</small>
+                            </div>
+                        </label>
+                    </div>
+                    <div id="addressGroup" class="form-group" style="display:none;">
+                        <label for="deliveryAddress">Direccion de entrega *</label>
+                        <input type="text" id="deliveryAddress" placeholder="Direccion completa, urbanizacion, referencias...">
+                    </div>
+                </div>
+
+                <!-- Pasabocas frying option -->
+                <div class="form-section" id="fryingSection" style="display:none;">
+                    <h2><i class="fas fa-fire"></i> Servicio de Fritada (Pasabocas)</h2>
+                    <p class="form-note">Si pides pasabocas, puedes solicitar que vengan fritos listos para servir.</p>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="fryingService" onchange="updateTotal()">
+                        <span>Quiero que los pasabocas vengan fritos (costo adicional por unidad)</span>
+                    </label>
+                </div>
+
+                <!-- Product Selection: Bandejas -->
+                <div class="form-section">
+                    <h2><i class="fas fa-box-open"></i> Seleccionar Productos (Bandejas)</h2>
+                    <p class="form-note">Selecciona la cantidad de bandejas que deseas de cada producto.</p>
+
+                    <div class="order-grid">
+                        <!-- Deditos -->
+                        <div class="order-category">
+                            <h3><i class="fas fa-hand-pointer"></i> Deditos</h3>
+                            <div class="order-product">
+                                <span class="order-product-name">Deditos de Queso (x10)</span>
+                                <span class="order-product-price">$12.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('deditos-queso', -1)">-</button>
+                                    <input type="number" id="qty-deditos-queso" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('deditos-queso', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Deditos de Bocadillo (x10)</span>
+                                <span class="order-product-price">$12.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('deditos-bocadillo', -1)">-</button>
+                                    <input type="number" id="qty-deditos-bocadillo" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('deditos-bocadillo', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Deditos Especiales (x10)</span>
+                                <span class="order-product-price">$12.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('deditos-especiales', -1)">-</button>
+                                    <input type="number" id="qty-deditos-especiales" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('deditos-especiales', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empanadas -->
+                        <div class="order-category">
+                            <h3><i class="fas fa-cookie"></i> Empanadas</h3>
+                            <div class="order-product">
+                                <span class="order-product-name">Empanadas de Pollo (x6)</span>
+                                <span class="order-product-price">$10.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('empanadas-pollo', -1)">-</button>
+                                    <input type="number" id="qty-empanadas-pollo" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('empanadas-pollo', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Empanadas Hawaianas (x6)</span>
+                                <span class="order-product-price">$10.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('empanadas-hawaianas', -1)">-</button>
+                                    <input type="number" id="qty-empanadas-hawaianas" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('empanadas-hawaianas', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Empanadas Jamon Queso (x6)</span>
+                                <span class="order-product-price">$10.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('empanadas-jamon-queso', -1)">-</button>
+                                    <input type="number" id="qty-empanadas-jamon-queso" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('empanadas-jamon-queso', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Empanadas Especiales (x6)</span>
+                                <span class="order-product-price">$10.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('empanadas-especiales', -1)">-</button>
+                                    <input type="number" id="qty-empanadas-especiales" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('empanadas-especiales', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panzerottis -->
+                        <div class="order-category">
+                            <h3><i class="fas fa-pizza-slice"></i> Panzerottis</h3>
+                            <div class="order-product">
+                                <span class="order-product-name">Panzerottis (x5)</span>
+                                <span class="order-product-price">$25.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('panzerottis', -1)">-</button>
+                                    <input type="number" id="qty-panzerottis" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('panzerottis', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pastelitos -->
+                        <div class="order-category">
+                            <h3><i class="fas fa-birthday-cake"></i> Pastelitos</h3>
+                            <div class="order-product">
+                                <span class="order-product-name">Pastelitos de Pollo (x6)</span>
+                                <span class="order-product-price">$10.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pastelitos-pollo', -1)">-</button>
+                                    <input type="number" id="qty-pastelitos-pollo" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pastelitos-pollo', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Pastelitos Jamon Queso (x6)</span>
+                                <span class="order-product-price">$10.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pastelitos-jamon-queso', -1)">-</button>
+                                    <input type="number" id="qty-pastelitos-jamon-queso" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pastelitos-jamon-queso', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Pastelitos Especiales (x6)</span>
+                                <span class="order-product-price">$10.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pastelitos-especiales', -1)">-</button>
+                                    <input type="number" id="qty-pastelitos-especiales" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pastelitos-especiales', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Pastelitos Hawaianos (x6)</span>
+                                <span class="order-product-price">$10.000</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pastelitos-hawaianos', -1)">-</button>
+                                    <input type="number" id="qty-pastelitos-hawaianos" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pastelitos-hawaianos', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pasabocas Selection -->
+                <div class="form-section pasabocas-order-section">
+                    <h2><i class="fas fa-glass-cheers"></i> Pasabocas para Eventos</h2>
+                    <p class="form-note">Deditos y empanaditas en tamaño mini. Indica la cantidad de unidades que necesitas.</p>
+
+                    <div class="pasabocas-config">
+                        <div class="form-group">
+                            <label for="pasabocasPrice">Precio por unidad pasabocas ($)</label>
+                            <input type="number" id="pasabocasPrice" value="800" onchange="updateTotal()">
+                        </div>
+                    </div>
+
+                    <div class="order-grid">
+                        <div class="order-category">
+                            <h3><i class="fas fa-hand-pointer"></i> Deditos Mini</h3>
+                            <div class="order-product">
+                                <span class="order-product-name">Deditos Mini de Queso</span>
+                                <span class="order-product-price-unit">Precio/unitario</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pb-deditos-queso', -1)">-</button>
+                                    <input type="number" id="qty-pb-deditos-queso" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pb-deditos-queso', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Deditos Mini de Bocadillo</span>
+                                <span class="order-product-price-unit">Precio/unitario</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pb-deditos-bocadillo', -1)">-</button>
+                                    <input type="number" id="qty-pb-deditos-bocadillo" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pb-deditos-bocadillo', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Deditos Mini Especiales</span>
+                                <span class="order-product-price-unit">Precio/unitario</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pb-deditos-especiales', -1)">-</button>
+                                    <input type="number" id="qty-pb-deditos-especiales" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pb-deditos-especiales', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="order-category">
+                            <h3><i class="fas fa-cookie"></i> Empanaditas Mini</h3>
+                            <div class="order-product">
+                                <span class="order-product-name">Empanaditas Mini de Pollo</span>
+                                <span class="order-product-price-unit">Precio/unitario</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pb-empanadas-pollo', -1)">-</button>
+                                    <input type="number" id="qty-pb-empanadas-pollo" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pb-empanadas-pollo', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Empanaditas Mini Hawaianas</span>
+                                <span class="order-product-price-unit">Precio/unitario</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pb-empanadas-hawaianas', -1)">-</button>
+                                    <input type="number" id="qty-pb-empanadas-hawaianas" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pb-empanadas-hawaianas', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Empanaditas Mini Jamon Queso</span>
+                                <span class="order-product-price-unit">Precio/unitario</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pb-empanadas-jamon-queso', -1)">-</button>
+                                    <input type="number" id="qty-pb-empanadas-jamon-queso" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pb-empanadas-jamon-queso', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="order-product">
+                                <span class="order-product-name">Empanaditas Mini Especiales</span>
+                                <span class="order-product-price-unit">Precio/unitario</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('pb-empanadas-especiales', -1)">-</button>
+                                    <input type="number" id="qty-pb-empanadas-especiales" value="0" min="0" onchange="updateTotal()">
+                                    <button type="button" onclick="changeQty('pb-empanadas-especiales', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Notes -->
+                <div class="form-section">
+                    <h2><i class="fas fa-comment"></i> Notas Adicionales</h2>
+                    <div class="form-group">
+                        <textarea id="orderNotes" rows="3" placeholder="Instrucciones especiales, alergias, cantidad exacta para evento, etc."></textarea>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="form-section summary-section">
+                    <h2><i class="fas fa-receipt"></i> Resumen del Pedido</h2>
+                    <div id="orderSummary" class="order-summary">
+                        <p class="empty-order">No has seleccionado ningun producto aun.</p>
+                    </div>
+                    <div class="order-totals">
+                        <div class="total-line">
+                            <span>Subtotal productos:</span>
+                            <span id="subtotalProducts">$0</span>
+                        </div>
+                        <div class="total-line" id="fryingLine" style="display:none;">
+                            <span>Fritada pasabocas:</span>
+                            <span id="fryingCost">$0</span>
+                        </div>
+                        <div class="total-line" id="deliveryLine" style="display:none;">
+                            <span>Domicilio:</span>
+                            <span id="deliveryCost">$0</span>
+                        </div>
+                        <div class="total-line" id="containerLine" style="display:none;">
+                            <span>Recipiente:</span>
+                            <span id="containerCost">$0</span>
+                        </div>
+                        <div class="total-line grand-total">
+                            <span>TOTAL:</span>
+                            <span id="grandTotal">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="form-section submit-section">
+                    <button type="submit" class="btn-primary btn-submit">
+                        <i class="fas fa-paper-plane"></i> Enviar Pedido por WhatsApp
+                    </button>
+                    <p class="submit-note">Al enviar, se abrira WhatsApp con tu pedido prearmado.</p>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-snowflake"></i>
+                    <span>Congelados Rochy</span>
+                </div>
+                <p>&copy; 2026 Congelados Rochy. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Hidden Invoice (for image generation) -->
+    <div id="invoiceCapture" class="invoice-capture">
+        <div class="invoice-paper">
+            <div class="invoice-header">
+                <div class="invoice-logo">
+                    <i class="fas fa-snowflake"></i>
+                    <span>Congelados Rochy</span>
+                </div>
+                <div class="invoice-title">PEDIDO / PRESUPUESTO</div>
+            </div>
+            <div class="invoice-client">
+                <div class="invoice-row"><span class="inv-label">Cliente:</span> <span id="inv-name"></span></div>
+                <div class="invoice-row"><span class="inv-label">Telefono:</span> <span id="inv-phone"></span></div>
+                <div class="invoice-row" id="inv-email-row"><span class="inv-label">Email:</span> <span id="inv-email"></span></div>
+                <div class="invoice-row"><span class="inv-label">Fecha entrega:</span> <span id="inv-date"></span></div>
+                <div class="invoice-row"><span class="inv-label">Entrega:</span> <span id="inv-method"></span></div>
+                <div class="invoice-row" id="inv-address-row"><span class="inv-label">Direccion:</span> <span id="inv-address"></span></div>
+            </div>
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>V.Unit.</th>
+                        <th>Cant.</th>
+                        <th>V.Total</th>
+                    </tr>
+                </thead>
+                <tbody id="inv-items"></tbody>
+            </table>
+            <div class="invoice-totals">
+                <div class="invoice-row"><span class="inv-label">Subtotal:</span> <span id="inv-subtotal"></span></div>
+                <div class="invoice-row" id="inv-frying-row"><span class="inv-label">Fritada:</span> <span id="inv-frying"></span></div>
+                <div class="invoice-row" id="inv-delivery-row"><span class="inv-label">Domicilio:</span> <span id="inv-delivery"></span></div>
+                <div class="invoice-row" id="inv-container-row"><span class="inv-label">Recipiente:</span> <span id="inv-container"></span></div>
+                <div class="invoice-row invoice-grand-total"><span class="inv-label">TOTAL:</span> <span id="inv-total"></span></div>
+            </div>
+            <div class="invoice-notes" id="inv-notes-row" style="display:none;">
+                <span class="inv-label">Notas:</span> <span id="inv-notes"></span>
+            </div>
+            <div class="invoice-footer">
+                <i class="fas fa-snowflake"></i> Congelados Rochy - Gracias por su compra
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content modal-login">
+            <button class="modal-close" onclick="closeAdminLogin()">&times;</button>
+            <div class="login-box">
+                <div class="login-icon"><i class="fas fa-lock"></i></div>
+                <h2>Acceso Administrador</h2>
+                <p>Ingresa la contraseña para acceder al panel</p>
+                <form onsubmit="checkAdminPassword(event)">
+                    <input type="password" id="adminPassword" placeholder="Contraseña" autocomplete="off">
+                    <p id="loginError" class="login-error" style="display:none;">Contraseña incorrecta</p>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Ingresar
+                    </button>
+                </form>
+                <button class="btn-back" onclick="closeAdminLogin()">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="pedidos.js"></script>
+    <script>
+        const ADMIN_PASSWORD = 'rochy2026';
+
+        function showAdminLogin() {
+            document.getElementById('adminModal').classList.add('active');
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('adminPassword').focus();
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminModal').classList.remove('active');
+        }
+
+        function checkAdminPassword(e) {
+            e.preventDefault();
+            const pass = document.getElementById('adminPassword').value;
+            if (pass === ADMIN_PASSWORD) {
+                window.location.href = 'panel.html';
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        document.getElementById('adminModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAdminLogin();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeAdminLogin();
+        });
+    </script>
+</body>
+</html>
