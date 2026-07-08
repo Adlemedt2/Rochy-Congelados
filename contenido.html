@@ -72,6 +72,7 @@
             <div class="content-tabs">
                 <button class="tab-btn active" onclick="showTab('carousel')"><i class="fas fa-film"></i> Marquesina</button>
                 <button class="tab-btn" onclick="showTab('promotions')"><i class="fas fa-fire"></i> Promociones</button>
+                <button class="tab-btn" onclick="showTab('config')"><i class="fas fa-cog"></i> Configuracion</button>
             </div>
 
             <!-- Carousel Tab -->
@@ -93,6 +94,102 @@
                 </div>
                 <div id="promotionsList" class="content-list">
                     <p class="empty-orders">Cargando...</p>
+                </div>
+            </div>
+
+            <!-- Configuration Tab -->
+            <div id="tab-config" class="tab-content" style="display:none;">
+                <div class="content-header">
+                    <h2><i class="fas fa-cog"></i> Configuracion de Costos</h2>
+                </div>
+                <div class="config-form" style="background:white; padding:30px; border-radius:15px; box-shadow:0 3px 12px rgba(0,0,0,0.06);">
+                    <form onsubmit="saveConfig(event)">
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:25px;">
+                            <!-- Domicilio -->
+                            <div style="padding:20px; background:#f8f9fa; border-radius:12px;">
+                                <h3 style="color:#1e3c72; margin-bottom:15px; font-size:1.1rem;"><i class="fas fa-truck" style="color:#ff6b35;"></i> Domicilio</h3>
+                                <div class="form-group" style="margin-bottom:15px;">
+                                    <label style="font-weight:500; margin-bottom:5px; display:block;">Valor del domicilio ($)</label>
+                                    <input type="number" id="configDelivery" placeholder="Ej: 3000" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins; font-size:1rem;">
+                                </div>
+                            </div>
+
+                            <!-- Recipiente -->
+                            <div style="padding:20px; background:#f8f9fa; border-radius:12px;">
+                                <h3 style="color:#1e3c72; margin-bottom:15px; font-size:1.1rem;"><i class="fas fa-box" style="color:#ff6b35;"></i> Recipiente</h3>
+                                <div class="form-group" style="margin-bottom:15px;">
+                                    <label style="font-weight:500; margin-bottom:5px; display:block;">Costo del recipiente ($)</label>
+                                    <input type="number" id="configContainer" placeholder="Ej: 2000" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins; font-size:1rem;">
+                                </div>
+                            </div>
+
+                            <!-- Fritada -->
+                            <div style="padding:20px; background:#f8f9fa; border-radius:12px;">
+                                <h3 style="color:#1e3c72; margin-bottom:15px; font-size:1.1rem;"><i class="fas fa-fire" style="color:#ff6b35;"></i> Fritada de Pasabocas</h3>
+                                <div class="form-group" style="margin-bottom:15px;">
+                                    <label style="font-weight:500; margin-bottom:5px; display:block;">Costo de la fritada ($)</label>
+                                    <input type="number" id="configFrying" placeholder="Ej: 500" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins; font-size:1rem;">
+                                </div>
+                                <div class="form-group" style="margin-bottom:10px;">
+                                    <label style="font-weight:500; margin-bottom:8px; display:block;">Tipo de cobro</label>
+                                    <div style="display:flex; gap:15px;">
+                                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 15px; background:white; border:2px solid #e0e0e0; border-radius:10px; transition:all 0.3s;" id="fryingPerUnitLabel">
+                                            <input type="radio" name="fryingType" value="unit" id="fryingPerUnit" checked onchange="updateFryingType()" style="accent-color:#ff6b35;">
+                                            <span>Por unidad</span>
+                                        </label>
+                                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 15px; background:white; border:2px solid #e0e0e0; border-radius:10px; transition:all 0.3s;" id="fryingGeneralLabel">
+                                            <input type="radio" name="fryingType" value="general" id="fryingGeneral" onchange="updateFryingType()" style="accent-color:#ff6b35;">
+                                            <span>General (monto fijo)</span>
+                                        </label>
+                                    </div>
+                                    <p id="fryingTypeHelp" style="margin-top:8px; color:#888; font-size:0.85rem;">Se cobra por cada unidad de pasabocas que se frite</p>
+                                </div>
+                            </div>
+
+                            <!-- Precios Pasabocas -->
+                            <div style="padding:20px; background:#f8f9fa; border-radius:12px; grid-column:1/-1;">
+                                <h3 style="color:#1e3c72; margin-bottom:15px; font-size:1.1rem;"><i class="fas fa-tag" style="color:#ff6b35;"></i> Precios de Pasabocas (por unidad)</h3>
+                                <div class="form-group" style="margin-bottom:15px;">
+                                    <label style="font-weight:500; margin-bottom:8px; display:block;">¿Todos al mismo precio?</label>
+                                    <div style="display:flex; gap:15px; margin-bottom:15px;">
+                                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 15px; background:white; border:2px solid #e0e0e0; border-radius:10px; transition:all 0.3s;" id="samePriceLabel">
+                                            <input type="radio" name="pasabocasPriceType" value="same" id="samePrice" checked onchange="togglePasabocasPrices()" style="accent-color:#ff6b35;">
+                                            <span>Si, todos iguales</span>
+                                        </label>
+                                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 15px; background:white; border:2px solid #e0e0e0; border-radius:10px; transition:all 0.3s;" id="diffPriceLabel">
+                                            <input type="radio" name="pasabocasPriceType" value="different" id="diffPrice" onchange="togglePasabocasPrices()" style="accent-color:#ff6b35;">
+                                            <span>No, precios diferentes</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="samePriceField" style="margin-bottom:15px;">
+                                    <label style="font-weight:500; margin-bottom:5px; display:block;">Precio unitario ($)</label>
+                                    <input type="number" id="configPasabocasSame" placeholder="Ej: 800" style="width:100%; max-width:300px; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins; font-size:1rem;">
+                                </div>
+                                <div id="diffPriceFields" style="display:none; display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                                    <div>
+                                        <label style="font-weight:500; margin-bottom:5px; display:block;">Mini Deditos ($)</label>
+                                        <input type="number" id="configPasabocasDeditos" placeholder="Ej: 800" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins; font-size:1rem;">
+                                    </div>
+                                    <div>
+                                        <label style="font-weight:500; margin-bottom:5px; display:block;">Mini Empanadas ($)</label>
+                                        <input type="number" id="configPasabocasEmpanadas" placeholder="Ej: 900" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins; font-size:1rem;">
+                                    </div>
+                                    <div>
+                                        <label style="font-weight:500; margin-bottom:5px; display:block;">Ojos de Buey ($)</label>
+                                        <input type="number" id="configPasabocasOjos" placeholder="Ej: 1000" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-family:Poppins; font-size:1rem;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:25px; text-align:center;">
+                            <button type="submit" class="btn-primary" style="padding:12px 40px;"><i class="fas fa-save"></i> Guardar Configuracion</button>
+                        </div>
+                    </form>
+                    <div id="configSaved" style="display:none; text-align:center; margin-top:15px; color:#4caf50; font-weight:600;">
+                        <i class="fas fa-check-circle"></i> Configuracion guardada exitosamente!
+                    </div>
                 </div>
             </div>
         </div>
@@ -235,6 +332,103 @@
             event.target.classList.add('active');
             if (tabName === 'carousel') renderCarouselList();
             if (tabName === 'promotions') renderPromotionsList();
+            if (tabName === 'config') loadConfig();
+        }
+
+        // ===== CONFIGURATION =====
+        async function loadConfig() {
+            var data = await fetchAll();
+            var config = data.config || {};
+            document.getElementById('configDelivery').value = config.deliveryCost || '';
+            document.getElementById('configContainer').value = config.containerCost || '';
+            document.getElementById('configFrying').value = config.fryingCost || '';
+            if (config.fryingType === 'general') {
+                document.getElementById('fryingGeneral').checked = true;
+            } else {
+                document.getElementById('fryingPerUnit').checked = true;
+            }
+            updateFryingType();
+
+            // Load pasabocas prices
+            if (config.pasabocasPriceType === 'different') {
+                document.getElementById('diffPrice').checked = true;
+                document.getElementById('configPasabocasDeditos').value = config.pasabocasDeditos || '';
+                document.getElementById('configPasabocasEmpanadas').value = config.pasabocasEmpanadas || '';
+                document.getElementById('configPasabocasOjos').value = config.pasabocasOjos || '';
+            } else {
+                document.getElementById('samePrice').checked = true;
+                document.getElementById('configPasabocasSame').value = config.pasabocasSame || '';
+            }
+            togglePasabocasPrices();
+        }
+
+        function updateFryingType() {
+            var isPerUnit = document.getElementById('fryingPerUnit').checked;
+            var helpText = document.getElementById('fryingTypeHelp');
+            var perUnitLabel = document.getElementById('fryingPerUnitLabel');
+            var generalLabel = document.getElementById('fryingGeneralLabel');
+
+            if (isPerUnit) {
+                helpText.textContent = 'Se cobra por cada unidad de pasabocas que se frite';
+                perUnitLabel.style.borderColor = '#ff6b35';
+                perUnitLabel.style.background = '#fff8f0';
+                generalLabel.style.borderColor = '#e0e0e0';
+                generalLabel.style.background = 'white';
+            } else {
+                helpText.textContent = 'Se cobra un monto fijo sin importar la cantidad de unidades';
+                generalLabel.style.borderColor = '#ff6b35';
+                generalLabel.style.background = '#fff8f0';
+                perUnitLabel.style.borderColor = '#e0e0e0';
+                perUnitLabel.style.background = 'white';
+            }
+        }
+
+        function togglePasabocasPrices() {
+            var isSame = document.getElementById('samePrice').checked;
+            var sameField = document.getElementById('samePriceField');
+            var diffFields = document.getElementById('diffPriceFields');
+            var sameLabel = document.getElementById('samePriceLabel');
+            var diffLabel = document.getElementById('diffPriceLabel');
+
+            if (isSame) {
+                sameField.style.display = 'block';
+                diffFields.style.display = 'none';
+                sameLabel.style.borderColor = '#ff6b35';
+                sameLabel.style.background = '#fff8f0';
+                diffLabel.style.borderColor = '#e0e0e0';
+                diffLabel.style.background = 'white';
+            } else {
+                sameField.style.display = 'none';
+                diffFields.style.display = 'grid';
+                diffLabel.style.borderColor = '#ff6b35';
+                diffLabel.style.background = '#fff8f0';
+                sameLabel.style.borderColor = '#e0e0e0';
+                sameLabel.style.background = 'white';
+            }
+        }
+
+        async function saveConfig(e) {
+            e.preventDefault();
+            var data = await fetchAll();
+            data.config = {
+                deliveryCost: parseInt(document.getElementById('configDelivery').value) || 0,
+                containerCost: parseInt(document.getElementById('configContainer').value) || 0,
+                fryingCost: parseInt(document.getElementById('configFrying').value) || 0,
+                fryingType: document.getElementById('fryingPerUnit').checked ? 'unit' : 'general',
+                pasabocasPriceType: document.getElementById('samePrice').checked ? 'same' : 'different',
+                pasabocasSame: parseInt(document.getElementById('configPasabocasSame').value) || 0,
+                pasabocasDeditos: parseInt(document.getElementById('configPasabocasDeditos').value) || 0,
+                pasabocasEmpanadas: parseInt(document.getElementById('configPasabocasEmpanadas').value) || 0,
+                pasabocasOjos: parseInt(document.getElementById('configPasabocasOjos').value) || 0
+            };
+            var result = await saveAll(data);
+            if (result) {
+                var msg = document.getElementById('configSaved');
+                msg.style.display = 'block';
+                setTimeout(function() { msg.style.display = 'none'; }, 3000);
+            } else {
+                alert('Error al guardar. Intenta de nuevo.');
+            }
         }
 
         function closeModal(modalId) {

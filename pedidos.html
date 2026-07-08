@@ -34,7 +34,6 @@
                 <a href="index.html#productos">Productos</a>
                 <a href="index.html#contacto">Contacto</a>
                 <a href="pedidos.html" class="nav-btn">Hacer Pedido</a>
-                <button class="nav-btn-admin" onclick="showAdminLogin()">Admin</button>
             </nav>
             <button class="menu-toggle" aria-label="Menu" onclick="document.querySelector('.nav').classList.toggle('active')">
                 <i class="fas fa-bars"></i>
@@ -47,29 +46,6 @@
         <div class="container">
             <h1 class="section-title">Formulario de Pedido</h1>
             <p class="section-subtitle">Completa los datos y selecciona los productos que deseas. El total se calcula automaticamente.</p>
-
-            <!-- Config Bar (admin) -->
-            <div class="config-bar">
-                <button class="config-toggle" onclick="toggleConfig()">
-                    <i class="fas fa-cog"></i> Configurar Costos Adicionales
-                </button>
-                <div id="configPanel" class="config-panel" style="display:none;">
-                    <div class="config-grid">
-                        <div class="config-item">
-                            <label>Costo Domicilio ($)</label>
-                            <input type="number" id="cfgDelivery" value="3000" onchange="saveConfig()">
-                        </div>
-                        <div class="config-item">
-                            <label>Costo Recipiente ($)</label>
-                            <input type="number" id="cfgContainer" value="2000" onchange="saveConfig()">
-                        </div>
-                        <div class="config-item">
-                            <label>Costo Fritada Pasabocas ($/unidad)</label>
-                            <input type="number" id="cfgFrying" value="500" onchange="saveConfig()">
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <form id="orderForm" class="order-form">
                 <!-- Customer Data -->
@@ -461,64 +437,10 @@
         </div>
     </div>
 
-    <!-- Admin Login Modal -->
-    <div id="adminModal" class="modal">
-        <div class="modal-content modal-login">
-            <button class="modal-close" onclick="closeAdminLogin()">&times;</button>
-            <div class="login-box">
-                <div class="login-icon"><i class="fas fa-lock"></i></div>
-                <h2>Acceso Administrador</h2>
-                <p>Ingresa la contraseña para acceder al panel</p>
-                <form onsubmit="checkAdminPassword(event)">
-                    <input type="password" id="adminPassword" placeholder="Contraseña" autocomplete="off">
-                    <p id="loginError" class="login-error" style="display:none;">Contraseña incorrecta</p>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-sign-in-alt"></i> Ingresar
-                    </button>
-                </form>
-                <button class="btn-back" onclick="closeAdminLogin()">
-                    <i class="fas fa-arrow-left"></i> Volver
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script src="cloud.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="pedidos.js"></script>
     <script>
-        const ADMIN_PASSWORD = 'rochy2026';
-
-        function showAdminLogin() {
-            document.getElementById('adminModal').classList.add('active');
-            document.getElementById('adminPassword').value = '';
-            document.getElementById('loginError').style.display = 'none';
-            document.getElementById('adminPassword').focus();
-        }
-
-        function closeAdminLogin() {
-            document.getElementById('adminModal').classList.remove('active');
-        }
-
-        function checkAdminPassword(e) {
-            e.preventDefault();
-            const pass = document.getElementById('adminPassword').value;
-            if (pass === ADMIN_PASSWORD) {
-                window.location.href = 'panel.html';
-            } else {
-                document.getElementById('loginError').style.display = 'block';
-                document.getElementById('adminPassword').value = '';
-                document.getElementById('adminPassword').focus();
-            }
-        }
-
-        document.getElementById('adminModal').addEventListener('click', function(e) {
-            if (e.target === this) closeAdminLogin();
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeAdminLogin();
-        });
     </script>
 
     <!-- WhatsApp Floating Button -->

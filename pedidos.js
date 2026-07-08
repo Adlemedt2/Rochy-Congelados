@@ -1,14 +1,54 @@
 // ===== CONFIGURABLE PRICES =====
 let config = {
-    deliveryCost: 3000,      // Costo domicilio
-    containerCost: 2000,     // Costo recipiente
-    fryingCostPerUnit: 500   // Costo fritada por unidad de pasabocas
+    deliveryCost: 3000,
+    containerCost: 2000,
+    fryingCost: 500,
+    fryingType: 'unit',
+    pasabocasPriceType: 'same',
+    pasabocasSame: 800,
+    pasabocasDeditos: 800,
+    pasabocasEmpanadas: 900,
+    pasabocasOjos: 1000
 };
 
-// Load saved config
-const savedConfig = localStorage.getItem('rochyConfig');
-if (savedConfig) {
-    config = JSON.parse(savedConfig);
+// Load config from cloud
+async function loadConfigFromCloud() {
+    var data = await fetchAll();
+    if (data.config) {
+        config = {
+            deliveryCost: data.config.deliveryCost || 3000,
+            containerCost: data.config.containerCost || 2000,
+            fryingCost: data.config.fryingCost || 500,
+            fryingType: data.config.fryingType || 'unit',
+            pasabocasPriceType: data.config.pasabocasPriceType || 'same',
+            pasabocasSame: data.config.pasabocasSame || 800,
+            pasabocasDeditos: data.config.pasabocasDeditos || 800,
+            pasabocasEmpanadas: data.config.pasabocasEmpanadas || 900,
+            pasabocasOjos: data.config.pasabocasOjos || 1000
+        };
+    }
+    // Update UI
+    updatePasabocasPricesFromConfig();
+    updateDelivery();
+}
+
+function getPasabocasPrice(productName) {
+    if (config.pasabocasPriceType === 'same') {
+        return config.pasabocasSame;
+    }
+    var name = productName.toLowerCase();
+    if (name.includes('dedito')) return config.pasabocasDeditos;
+    if (name.includes('empanada')) return config.pasabocasEmpanadas;
+    if (name.includes('buey') || name.includes('ojos')) return config.pasabocasOjos;
+    return config.pasabocasSame;
+}
+
+function updatePasabocasPricesFromConfig() {
+    document.querySelectorAll('.order-product-price-unit').forEach(function(el) {
+        var productName = el.closest('.order-product').querySelector('.order-product-name').textContent;
+        var price = getPasabocasPrice(productName);
+        el.textContent = '$' + price.toLocaleString('es-VE') + ' c/u';
+    });
 }
 
 // ===== PRODUCT PRICES =====
@@ -43,54 +83,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('deliveryDate').min = today;
 
-    // Only show config panel if URL has ?admin
-    const isAdmin = window.location.search.includes('admin');
-    const configBar = document.querySelector('.config-bar');
-    if (configBar) {
-        configBar.style.display = isAdmin ? 'block' : 'none';
-    }
-
-    // Pasabocas price input: readonly for client, editable for admin
-    const pbPriceInput = document.getElementById('pasabocasPrice');
-    if (pbPriceInput) {
-        pbPriceInput.readOnly = !isAdmin;
-        if (!isAdmin) {
-            pbPriceInput.style.background = '#f0f0f0';
-            pbPriceInput.style.cursor = 'not-allowed';
-        }
-    }
-
-    // Load config into inputs
-    document.getElementById('cfgDelivery').value = config.deliveryCost;
-    document.getElementById('cfgContainer').value = config.containerCost;
-    document.getElementById('cfgFrying').value = config.fryingCostPerUnit;
-
-    updatePasabocasPrices();
-    updateDelivery();
+    // Load config from cloud
+    loadConfigFromCloud();
 });
-
-// ===== CONFIG =====
-function toggleConfig() {
-    const panel = document.getElementById('configPanel');
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-}
-
-function saveConfig() {
-    config.deliveryCost = parseInt(document.getElementById('cfgDelivery').value) || 0;
-    config.containerCost = parseInt(document.getElementById('cfgContainer').value) || 0;
-    config.fryingCostPerUnit = parseInt(document.getElementById('cfgFrying').value) || 0;
-    localStorage.setItem('rochyConfig', JSON.stringify(config));
-    updateDelivery();
-    updatePasabocasPrices();
-    updateTotal();
-}
-
-function updatePasabocasPrices() {
-    const pricePerUnit = parseInt(document.getElementById('pasabocasPrice').value) || 0;
-    document.querySelectorAll('.order-product-price-unit').forEach(el => {
-        el.textContent = '$' + pricePerUnit.toLocaleString('es-VE') + ' c/u';
-    });
-}
 
 // ===== QUANTITY CONTROLS =====
 function changeQty(productId, delta) {
@@ -158,12 +153,13 @@ function updateTotal() {
         const input = document.getElementById('qty-' + id);
         const qty = parseInt(input.value) || 0;
         if (qty > 0) {
-            const lineTotal = qty * pricePerUnit;
+            const unitPrice = getPasabocasPrice(product.name);
+            const lineTotal = qty * unitPrice;
             subtotal += lineTotal;
             totalPasabocas += qty;
             summaryItems.push({
                 name: product.name,
-                unitPrice: pricePerUnit,
+                unitPrice: unitPrice,
                 qty: qty,
                 total: lineTotal
             });
@@ -174,7 +170,11 @@ function updateTotal() {
     let fryingTotal = 0;
     const fryingLine = document.getElementById('fryingLine');
     if (method === 'delivery' && document.getElementById('fryingService').checked && totalPasabocas > 0) {
-        fryingTotal = totalPasabocas * config.fryingCostPerUnit;
+        if (config.fryingType === 'general') {
+            fryingTotal = config.fryingCost;
+        } else {
+            fryingTotal = totalPasabocas * config.fryingCost;
+        }
         fryingLine.style.display = 'flex';
         document.getElementById('fryingCost').textContent = '$' + fryingTotal.toLocaleString('es-VE');
     } else {
@@ -235,7 +235,6 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
     const method = document.querySelector('input[name="deliveryMethod"]:checked').value;
     const address = document.getElementById('deliveryAddress').value.trim();
     const notes = document.getElementById('orderNotes').value.trim();
-    const pricePerUnit = parseInt(document.getElementById('pasabocasPrice').value) || 0;
 
     if (!name || !phone || !date) {
         alert('Por favor completa todos los campos obligatorios.');
@@ -266,10 +265,11 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
         const input = document.getElementById('qty-' + id);
         const qty = parseInt(input.value) || 0;
         if (qty > 0) {
-            const lineTotal = qty * pricePerUnit;
+            const unitPrice = getPasabocasPrice(product.name);
+            const lineTotal = qty * unitPrice;
             subtotal += lineTotal;
             totalPasabocas += qty;
-            items.push({ name: product.name, unitPrice: pricePerUnit, qty: qty, total: lineTotal });
+            items.push({ name: product.name, unitPrice: unitPrice, qty: qty, total: lineTotal });
         }
     }
 
@@ -281,7 +281,11 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
     // Frying
     let fryingTotal = 0;
     if (method === 'delivery' && document.getElementById('fryingService').checked && totalPasabocas > 0) {
-        fryingTotal = totalPasabocas * config.fryingCostPerUnit;
+        if (config.fryingType === 'general') {
+            fryingTotal = config.fryingCost;
+        } else {
+            fryingTotal = totalPasabocas * config.fryingCost;
+        }
     }
 
     let deliveryTotal = method === 'delivery' ? config.deliveryCost : 0;
@@ -367,7 +371,7 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
         audio.play().catch(function(){});
     } catch(e) {}
 
-    // Generate image with html2canvas
+    // Generate invoice image with html2canvas
     const invoiceEl = document.getElementById('invoiceCapture');
     invoiceEl.style.left = '0';
     invoiceEl.style.position = 'absolute';
@@ -376,14 +380,15 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff'
-    }).then(canvas => {
+    }).then(function(canvas) {
         invoiceEl.style.left = '-9999px';
         invoiceEl.style.position = 'fixed';
 
+        const whatsappNumber = '573117795937';
+        const msg = 'Hola! Adjunto mi pedido de Congelados Rochy. Fecha de entrega: ' + dateFormatted;
+
         canvas.toBlob(function(blob) {
             const file = new File([blob], 'pedido-congelados-rochy.png', { type: 'image/png' });
-            const whatsappNumber = '573117795937';
-            const msg = 'Hola! Adjunto mi pedido de Congelados Rochy. Fecha de entrega: ' + dateFormatted;
 
             // Try Web Share API (works on mobile to share directly to WhatsApp)
             if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -392,29 +397,57 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
                     text: msg,
                     files: [file]
                 }).catch(function(err) {
-                    // User cancelled or error - fallback to download
                     downloadAndOpenWhatsApp(canvas, msg, whatsappNumber);
                 });
             } else {
-                // Desktop fallback - download image and open WhatsApp
                 downloadAndOpenWhatsApp(canvas, msg, whatsappNumber);
             }
         }, 'image/png');
+    }).catch(function(err) {
+        // Fallback: send text if html2canvas fails
+        var orderText = '*Pedido - Congelados Rochy*\n\n';
+        orderText += '*Datos:*\nNombre: ' + name + '\nTelefono: ' + phone + '\n';
+        orderText += 'Fecha: ' + dateFormatted + '\nEntrega: ' + (method === 'delivery' ? 'Domicilio' : 'Recoger en tienda') + '\n';
+        if (method === 'delivery') orderText += 'Direccion: ' + address + '\n';
+        orderText += '\n*Productos:*\n';
+        items.forEach(function(item) {
+            orderText += '- ' + item.name + ' x' + item.qty + ' = $' + item.total.toLocaleString('es-VE') + '\n';
+        });
+        orderText += '\n*TOTAL: $' + grandTotal.toLocaleString('es-VE') + '*\n';
+        window.open('https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(orderText), '_blank');
+        alert('Pedido guardado. Se envio el detalle por texto.');
     });
 });
 
 function downloadAndOpenWhatsApp(canvas, msg, whatsappNumber) {
-    // Download the image
-    const link = document.createElement('a');
-    link.download = 'pedido-congelados-rochy.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    // Convert canvas to blob and try to share directly
+    canvas.toBlob(function(blob) {
+        const file = new File([blob], 'pedido-congelados-rochy.png', { type: 'image/png' });
 
-    // Open WhatsApp
-    setTimeout(function() {
-        window.open('https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(msg), '_blank');
-        alert('Se descargo la imagen de tu pedido. Adjuntala en el chat de WhatsApp.');
-    }, 500);
+        // Try Web Share API first (works on mobile)
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({
+                title: 'Pedido Congelados Rochy',
+                text: msg,
+                files: [file]
+            }).catch(function() {
+                // If share fails, open WhatsApp with text
+                window.open('https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(msg), '_blank');
+                alert('Se abrio WhatsApp. La imagen se guardo en tu dispositivo para que la adjuntes.');
+            });
+        } else {
+            // Desktop: download and open WhatsApp
+            const link = document.createElement('a');
+            link.download = 'pedido-congelados-rochy.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            setTimeout(function() {
+                window.open('https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(msg), '_blank');
+                alert('Se descargo la imagen. Adjuntala en el chat de WhatsApp.');
+            }, 500);
+        }
+    }, 'image/png');
 }
 
 // ===== MOBILE MENU (same as index) =====
