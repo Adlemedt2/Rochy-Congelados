@@ -426,8 +426,34 @@ async function loadPromotions() {
     grid.innerHTML = html;
 }
 
+// ===== DYNAMIC CONTENT: PASABOCAS PRICES =====
+async function loadPasabocasPrices() {
+    var data = await fetchAll();
+    var config = data.config || {};
+    var priceType = config.pasabocasPriceType || 'same';
+    var prices = {
+        deditos: config.pasabocasSame || 800,
+        empanadas: config.pasabocasSame || 800,
+        ojos: config.pasabocasSame || 800
+    };
+
+    if (priceType === 'different') {
+        prices.deditos = config.pasabocasDeditos || 800;
+        prices.empanadas = config.pasabocasEmpanadas || 900;
+        prices.ojos = config.pasabocasOjos || 1000;
+    }
+
+    document.querySelectorAll('.pasabocas-price').forEach(function(el) {
+        var type = el.getAttribute('data-price-type');
+        if (prices[type]) {
+            el.textContent = '$' + prices[type].toLocaleString('es-VE') + ' c/u';
+        }
+    });
+}
+
 // Load dynamic content on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadCarousel();
     loadPromotions();
+    loadPasabocasPrices();
 });

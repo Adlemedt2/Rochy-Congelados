@@ -39,7 +39,7 @@ function getPasabocasPrice(productName) {
     var name = productName.toLowerCase();
     if (name.includes('dedito')) return config.pasabocasDeditos;
     if (name.includes('empanada')) return config.pasabocasEmpanadas;
-    if (name.includes('buey') || name.includes('ojos')) return config.pasabocasOjos;
+    if (name.includes('ojos') || name.includes('buey')) return config.pasabocasOjos;
     return config.pasabocasSame;
 }
 
@@ -74,7 +74,8 @@ const pasabocasProducts = {
     'pb-empanadas-pollo':        { name: 'Empanaditas Mini Pollo', pricePerUnit: true },
     'pb-empanadas-hawaianas':    { name: 'Empanaditas Mini Hawaianas', pricePerUnit: true },
     'pb-empanadas-jamon-queso':  { name: 'Empanaditas Mini Jamon Queso', pricePerUnit: true },
-    'pb-empanadas-especiales':   { name: 'Empanaditas Mini Especiales', pricePerUnit: true }
+    'pb-empanadas-especiales':   { name: 'Empanaditas Mini Especiales', pricePerUnit: true },
+    'pb-ojos':                   { name: 'Ojos de Buey', pricePerUnit: true }
 };
 
 // ===== INIT =====
@@ -129,7 +130,6 @@ function updateTotal() {
     let totalPasabocas = 0;
     const summaryItems = [];
     const method = document.querySelector('input[name="deliveryMethod"]:checked').value;
-    const pricePerUnit = parseInt(document.getElementById('pasabocasPrice').value) || 0;
 
     // Tray products
     for (const [id, product] of Object.entries(trayProducts)) {

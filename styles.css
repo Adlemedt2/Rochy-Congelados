@@ -706,7 +706,18 @@ body {
 .pasabocas-card p {
     color: #888;
     font-size: 0.9rem;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+}
+
+.pasabocas-price {
+    display: inline-block;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
 }
 
 .pasabocas-tag {
