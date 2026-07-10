@@ -428,8 +428,7 @@ async function loadPromotions() {
 
 // ===== DYNAMIC CONTENT: PASABOCAS PRICES =====
 async function loadPasabocasPrices() {
-    var data = await fetchAll();
-    var config = data.config || {};
+    var config = await fetchConfig();
     var priceType = config.pasabocasPriceType || 'same';
     var prices = {
         deditos: config.pasabocasSame || 800,
@@ -456,4 +455,98 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCarousel();
     loadPromotions();
     loadPasabocasPrices();
+    loadDynamicProducts();
 });
+
+// ===== DYNAMIC PRODUCTS FROM CLOUD =====
+var cloudProducts = {};
+
+async function loadDynamicProducts() {
+    var container = document.getElementById('dynamicProductsContainer');
+    if (!container) return;
+    
+    try {
+        var categories = await fetchCategories();
+        var products = await fetchProducts();
+        
+        var activeCategories = categories.filter(function(c) { return c.active !== false; }).sort(function(a, b) { return a.order - b.order; });
+        var trayProducts = products.filter(function(p) { return !p.isPasabocas && p.active !== false; });
+        
+        if (activeCategories.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#888;">No hay productos disponibles.</p>';
+            return;
+        }
+        
+        var html = '';
+        activeCategories.forEach(function(cat) {
+            var catProducts = trayProducts.filter(function(p) { return p.categoryId === cat.id; });
+            if (catProducts.length === 0) return;
+            
+            html += '<div class="category">';
+            html += '<div class="category-header">';
+            html += '<div class="category-icon"><i class="' + (cat.icon || 'fas fa-box') + '"></i></div>';
+            html += '<div><h3>' + cat.name + '</h3>';
+            html += '<p>' + (cat.description || '') + '</p></div></div>';
+            html += '<div class="products-grid">';
+            
+            catProducts.forEach(function(prod) {
+                html += '<div class="product-card" onclick="openCloudModal(\'' + prod.id + '\')">';
+                html += '<div class="product-image">';
+                if (prod.imageUrl) {
+                    html += '<img src="' + prod.imageUrl + '" loading="lazy" alt="' + prod.name + '">';
+                }
+                if (prod.badge) {
+                    var badgeClass = prod.badge === 'Premium' ? 'badge-premium' : (prod.badge === 'Especial' ? 'badge-new' : '');
+                    html += '<div class="product-badge ' + badgeClass + '">' + prod.badge + '</div>';
+                }
+                html += '</div>';
+                html += '<div class="product-info">';
+                html += '<h4>' + prod.name + '</h4>';
+                html += '<p class="product-preview">' + (prod.description || '').substring(0, 60) + '...</p>';
+                html += '<div class="product-price-tag">$' + prod.price.toLocaleString('es-VE') + ' <span>x' + prod.qtyPerTray + ' uds</span></div>';
+                html += '<span class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></span>';
+                html += '</div></div>';
+                
+                // Store product data for modal
+                cloudProducts[prod.id] = {
+                    name: prod.name,
+                    icon: prod.icon || 'fas fa-box',
+                    description: prod.description || '',
+                    features: prod.features || [],
+                    prices: prod.price > 0 ? [{ presentation: 'Bandeja x ' + prod.qtyPerTray + ' unidades', price: '$' + prod.price.toLocaleString('es-VE') }] : [],
+                    preparation: prod.preparation || ''
+                };
+            });
+            
+            html += '</div></div>';
+        });
+        
+        container.innerHTML = html;
+    } catch(e) {
+        container.innerHTML = '<p style="text-align:center; color:#888;">Error al cargar productos.</p>';
+    }
+}
+
+function openCloudModal(productId) {
+    var product = cloudProducts[productId];
+    if (!product) return;
+    
+    var modal = document.getElementById('productModal');
+    
+    document.getElementById('modal-icon').innerHTML = '<i class="' + product.icon + '"></i>';
+    document.getElementById('modal-title').textContent = product.name;
+    document.getElementById('modal-description').textContent = product.description;
+    
+    var featuresList = document.getElementById('modal-features');
+    featuresList.innerHTML = product.features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
+    
+    var pricesContainer = document.getElementById('modal-prices');
+    pricesContainer.innerHTML = '<table class="price-table"><thead><tr><th>Presentacion</th><th>Precio</th></tr></thead><tbody>' + 
+        product.prices.map(function(p) { return '<tr><td>' + p.presentation + '</td><td>' + p.price + '</td></tr>'; }).join('') + 
+        '</tbody></table>';
+    
+    document.getElementById('modal-preparation-text').textContent = product.preparation;
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}

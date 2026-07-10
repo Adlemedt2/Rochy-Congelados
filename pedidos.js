@@ -13,18 +13,18 @@ let config = {
 
 // Load config from cloud
 async function loadConfigFromCloud() {
-    var data = await fetchAll();
-    if (data.config) {
+    var cloudConfig = await fetchConfig();
+    if (cloudConfig && Object.keys(cloudConfig).length > 0) {
         config = {
-            deliveryCost: data.config.deliveryCost || 3000,
-            containerCost: data.config.containerCost || 2000,
-            fryingCost: data.config.fryingCost || 500,
-            fryingType: data.config.fryingType || 'unit',
-            pasabocasPriceType: data.config.pasabocasPriceType || 'same',
-            pasabocasSame: data.config.pasabocasSame || 800,
-            pasabocasDeditos: data.config.pasabocasDeditos || 800,
-            pasabocasEmpanadas: data.config.pasabocasEmpanadas || 900,
-            pasabocasOjos: data.config.pasabocasOjos || 1000
+            deliveryCost: cloudConfig.deliveryCost || 3000,
+            containerCost: cloudConfig.containerCost || 2000,
+            fryingCost: cloudConfig.fryingCost || 500,
+            fryingType: cloudConfig.fryingType || 'unit',
+            pasabocasPriceType: cloudConfig.pasabocasPriceType || 'same',
+            pasabocasSame: cloudConfig.pasabocasSame || 800,
+            pasabocasDeditos: cloudConfig.pasabocasDeditos || 800,
+            pasabocasEmpanadas: cloudConfig.pasabocasEmpanadas || 900,
+            pasabocasOjos: cloudConfig.pasabocasOjos || 1000
         };
     }
     // Update UI
@@ -458,3 +458,88 @@ if (menuToggle && nav) {
         nav.classList.toggle('active');
     });
 }
+
+// ===== DYNAMIC PRODUCTS FROM CLOUD =====
+var dynamicTrayProducts = {};
+var dynamicPasabocasProducts = {};
+
+async function loadDynamicOrderProducts() {
+    var trayContainer = document.getElementById('dynamicOrderProducts');
+    var pasabocasContainer = document.getElementById('dynamicPasabocasProducts');
+    
+    try {
+        var categories = await fetchCategories();
+        var products = await fetchProducts();
+        
+        var activeCategories = categories.filter(function(c) { return c.active !== false; }).sort(function(a, b) { return a.order - b.order; });
+        var trayProductsList = products.filter(function(p) { return !p.isPasabocas && p.active !== false; });
+        var pasabocasProductsList = products.filter(function(p) { return p.isPasabocas && p.active !== false; });
+        
+        // Render tray products
+        var trayHtml = '';
+        activeCategories.forEach(function(cat) {
+            var catProducts = trayProductsList.filter(function(p) { return p.categoryId === cat.id; });
+            if (catProducts.length === 0) return;
+            
+            trayHtml += '<div class="order-category">';
+            trayHtml += '<h3><i class="' + (cat.icon || 'fas fa-box') + '"></i> ' + cat.name + '</h3>';
+            
+            catProducts.forEach(function(prod) {
+                var productId = prod.id.replace('prod-', '');
+                dynamicTrayProducts[productId] = { name: prod.name + ' (x' + prod.qtyPerTray + ')', price: prod.price, qty: prod.qtyPerTray };
+                
+                trayHtml += '<div class="order-product">';
+                trayHtml += '<span class="order-product-name">' + prod.name + ' (x' + prod.qtyPerTray + ')</span>';
+                trayHtml += '<span class="order-product-price">$' + prod.price.toLocaleString('es-VE') + '</span>';
+                trayHtml += '<div class="qty-control">';
+                trayHtml += '<button type="button" onclick="changeQty(\'' + productId + '\', -1)">-</button>';
+                trayHtml += '<input type="number" id="qty-' + productId + '" value="0" min="0" onchange="updateTotal()">';
+                trayHtml += '<button type="button" onclick="changeQty(\'' + productId + '\', 1)">+</button>';
+                trayHtml += '</div></div>';
+            });
+            
+            trayHtml += '</div>';
+        });
+        trayContainer.innerHTML = trayHtml;
+        
+        // Render pasabocas products
+        var pasabocasHtml = '';
+        activeCategories.forEach(function(cat) {
+            var catPasabocas = pasabocasProductsList.filter(function(p) { return p.categoryId === cat.id; });
+            if (catPasabocas.length === 0) return;
+            
+            pasabocasHtml += '<div class="order-category">';
+            pasabocasHtml += '<h3><i class="' + (cat.icon || 'fas fa-box') + '"></i> ' + cat.name + ' Mini</h3>';
+            
+            catPasabocas.forEach(function(prod) {
+                var productId = prod.id.replace('prod-', '');
+                dynamicPasabocasProducts[productId] = { name: prod.name, pricePerUnit: true };
+                
+                pasabocasHtml += '<div class="order-product">';
+                pasabocasHtml += '<span class="order-product-name">' + prod.name + '</span>';
+                pasabocasHtml += '<span class="order-product-price-unit">$' + prod.pasabocasPrice.toLocaleString('es-VE') + ' c/u</span>';
+                pasabocasHtml += '<div class="qty-control">';
+                pasabocasHtml += '<button type="button" onclick="changeQty(\'' + productId + '\', -1)">-</button>';
+                pasabocasHtml += '<input type="number" id="qty-' + productId + '" value="0" min="0" onchange="updateTotal()">';
+                pasabocasHtml += '<button type="button" onclick="changeQty(\'' + productId + '\', 1)">+</button>';
+                pasabocasHtml += '</div></div>';
+            });
+            
+            pasabocasHtml += '</div>';
+        });
+        pasabocasContainer.innerHTML = pasabocasHtml;
+        
+        // Update trayProducts and pasabocasProducts objects
+        Object.assign(trayProducts, dynamicTrayProducts);
+        Object.assign(pasabocasProducts, dynamicPasabocasProducts);
+        
+    } catch(e) {
+        trayContainer.innerHTML = '<p style="text-align:center; color:#888; grid-column:1/-1;">Error al cargar productos.</p>';
+        pasabocasContainer.innerHTML = '<p style="text-align:center; color:#888; grid-column:1/-1;">Error al cargar pasabocas.</p>';
+    }
+}
+
+// Load dynamic products on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadDynamicOrderProducts();
+});

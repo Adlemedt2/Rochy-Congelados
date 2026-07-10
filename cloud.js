@@ -3,7 +3,27 @@ const JSONBIN_API_KEY = '$2a$10$Lze98Tu5N9fGvctlOMLSAOm.VvyI9llQdZeO3Bnv1kLJmdig
 const JSONBIN_BIN_ID = '6a4c1292da38895dfe376c91';
 const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID;
 
-// ===== GENERIC FETCH/SAVE =====
+// ===== LOCAL STORAGE HELPERS =====
+function getLocalData(key, defaultValue) {
+    try {
+        var data = localStorage.getItem('rochy_' + key);
+        return data ? JSON.parse(data) : defaultValue;
+    } catch(e) {
+        return defaultValue;
+    }
+}
+
+function setLocalData(key, value) {
+    try {
+        localStorage.setItem('rochy_' + key, JSON.stringify(value));
+        return true;
+    } catch(e) {
+        console.error('Error saving to localStorage:', e);
+        return false;
+    }
+}
+
+// ===== GENERIC FETCH/SAVE (JSONBin) =====
 async function fetchAll() {
     try {
         const res = await fetch(JSONBIN_URL + '/latest', {
@@ -19,7 +39,7 @@ async function fetchAll() {
 
 async function saveAll(data) {
     try {
-        await fetch(JSONBIN_URL, {
+        const res = await fetch(JSONBIN_URL, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,14 +47,20 @@ async function saveAll(data) {
             },
             body: JSON.stringify(data)
         });
-        return true;
+        const result = await res.json();
+        if (res.ok) {
+            return true;
+        } else {
+            console.error('Save failed:', result);
+            return false;
+        }
     } catch(e) {
         console.error('Error saving data:', e);
         return false;
     }
 }
 
-// ===== ORDERS =====
+// ===== ORDERS (JSONBin - synced) =====
 async function fetchOrders() {
     const data = await fetchAll();
     return data.orders || [];
@@ -46,7 +72,7 @@ async function saveOrdersToCloud(orders) {
     return await saveAll(data);
 }
 
-// ===== CAROUSEL =====
+// ===== CAROUSEL (JSONBin - synced) =====
 async function fetchCarousel() {
     const data = await fetchAll();
     return data.carousel || [];
@@ -58,7 +84,7 @@ async function saveCarousel(carousel) {
     return await saveAll(data);
 }
 
-// ===== PROMOTIONS =====
+// ===== PROMOTIONS (JSONBin - synced) =====
 async function fetchPromotions() {
     const data = await fetchAll();
     return data.promotions || [];
@@ -68,6 +94,65 @@ async function savePromotions(promotions) {
     const data = await fetchAll();
     data.promotions = promotions;
     return await saveAll(data);
+}
+
+// ===== CONFIG (JSONBin - synced) =====
+async function fetchConfig() {
+    const data = await fetchAll();
+    return data.config || {};
+}
+
+async function saveConfigToCloud(config) {
+    const data = await fetchAll();
+    data.config = config;
+    return await saveAll(data);
+}
+
+// ===== CATEGORIES (localStorage - local) =====
+async function fetchCategories() {
+    return getLocalData('categories', []);
+}
+
+async function saveCategories(categories) {
+    return setLocalData('categories', categories);
+}
+
+// ===== PRODUCTS (localStorage - local) =====
+async function fetchProducts() {
+    return getLocalData('products', []);
+}
+
+async function saveProducts(products) {
+    return setLocalData('products', products);
+}
+
+// ===== MIGRATION: Move data from JSONBin to localStorage =====
+async function migrateToLocal() {
+    console.log('Starting migration from JSONBin to localStorage...');
+    
+    var data = await fetchAll();
+    
+    // Move categories to localStorage
+    if (data.categories && data.categories.length > 0) {
+        setLocalData('categories', data.categories);
+        console.log('Migrated ' + data.categories.length + ' categories to localStorage');
+    }
+    
+    // Move products to localStorage
+    if (data.products && data.products.length > 0) {
+        setLocalData('products', data.products);
+        console.log('Migrated ' + data.products.length + ' products to localStorage');
+    }
+    
+    // Remove categories and products from JSONBin to reduce size
+    delete data.categories;
+    delete data.products;
+    
+    var result = await saveAll(data);
+    console.log('JSONBin cleanup result:', result);
+    
+    alert('Migracion completada! Los productos y categorias ahora se guardan localmente.');
+    return true;
 }
 
 // ===== IMGBB UPLOAD =====
