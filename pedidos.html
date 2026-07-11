@@ -234,12 +234,55 @@
     </div>
 
     <script src="cloud.js"></script>
+    <script src="cart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="pedidos.js"></script>
     <script>
     </script>
 
-    <!-- WhatsApp Floating Button -->
+    <!-- Cart Bar -->
+<div id="cartBar" class="cart-bar">
+    <div class="cart-bar-info">
+        <div class="cart-bar-count">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cartBarCount">0 items</span>
+        </div>
+        <div class="cart-bar-total">
+            Total: <span id="cartBarTotal">$0</span>
+        </div>
+    </div>
+    <div class="cart-bar-actions">
+        <button class="btn-cart btn-cart-clear" onclick="clearCartConfirm()">
+            <i class="fas fa-trash"></i> Limpiar
+        </button>
+        <button class="btn-cart btn-cart-view" onclick="openCartModal()">
+            <i class="fas fa-eye"></i> Ver Carrito
+        </button>
+    </div>
+</div>
+
+<!-- Cart Modal -->
+<div id="cartModal" class="cart-modal">
+    <div class="cart-modal-content">
+        <div class="cart-modal-header">
+            <h2><i class="fas fa-shopping-cart"></i> Mi Carrito</h2>
+            <button class="cart-modal-close" onclick="closeCartModal()">&times;</button>
+        </div>
+        <div class="cart-modal-body" id="cartModalBody">
+            <!-- Dynamic content -->
+        </div>
+        <div class="cart-modal-footer">
+            <div class="cart-modal-total">
+                Total: <span id="cartModalTotal">$0</span>
+            </div>
+            <button class="btn-primary" onclick="closeCartModal()">
+                <i class="fas fa-arrow-left"></i> Seguir Comprando
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- WhatsApp Floating Button -->
     <a href="https://wa.me/573117795937" target="_blank" class="whatsapp-float">
         <i class="fab fa-whatsapp"></i>
     </a>

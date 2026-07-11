@@ -94,6 +94,29 @@ function changeQty(productId, delta) {
     let val = parseInt(input.value) || 0;
     val = Math.max(0, val + delta);
     input.value = val;
+
+    // Update cart
+    var isPasabocas = productId.startsWith('pb-');
+    var price = 0;
+    var name = '';
+
+    if (isPasabocas && dynamicPasabocasProducts[productId]) {
+        name = dynamicPasabocasProducts[productId].name;
+        price = getPasabocasPrice(name);
+    } else if (dynamicTrayProducts[productId]) {
+        name = dynamicTrayProducts[productId].name;
+        price = dynamicTrayProducts[productId].price;
+    } else if (trayProducts[productId]) {
+        name = trayProducts[productId].name;
+        price = trayProducts[productId].price;
+    }
+
+    if (val > 0) {
+        Cart.addItem({ id: productId, name: name, price: price, isPasabocas: isPasabocas, qty: val });
+    } else {
+        Cart.removeItem(productId);
+    }
+
     updateTotal();
 }
 
@@ -416,6 +439,7 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
         orderText += '\n*TOTAL: $' + grandTotal.toLocaleString('es-VE') + '*\n';
         window.open('https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(orderText), '_blank');
         alert('Pedido guardado. Se envio el detalle por texto.');
+        Cart.clear();
     });
 });
 
@@ -543,3 +567,129 @@ async function loadDynamicOrderProducts() {
 document.addEventListener('DOMContentLoaded', function() {
     loadDynamicOrderProducts();
 });
+
+// ===== CART UI FUNCTIONS =====
+function updateCartBar() {
+    var count = Cart.getCount();
+    var total = Cart.getTotal();
+    var cartBar = document.getElementById('cartBar');
+
+    document.getElementById('cartBarCount').textContent = count + ' items';
+    document.getElementById('cartBarTotal').textContent = '$' + total.toLocaleString('es-VE');
+
+    if (count > 0) {
+        cartBar.classList.add('active');
+    } else {
+        cartBar.classList.remove('active');
+    }
+}
+
+function openCartModal() {
+    var items = Cart.getItems();
+    var modal = document.getElementById('cartModal');
+    var body = document.getElementById('cartModalBody');
+
+    if (items.length === 0) {
+        body.innerHTML = '<div class="cart-empty"><i class="fas fa-shopping-cart"></i><p>Tu carrito esta vacio</p></div>';
+    } else {
+        var html = '';
+        items.forEach(function(item) {
+            var itemTotal = item.price * item.qty;
+            html += '<div class="cart-item">';
+            html += '<div class="cart-item-info">';
+            html += '<div class="cart-item-name">' + item.name + '</div>';
+            html += '<div class="cart-item-price">$' + item.price.toLocaleString('es-VE') + (item.isPasabocas ? ' c/u' : ' por bandeja') + '</div>';
+            html += '</div>';
+            html += '<div class="cart-item-qty">';
+            html += '<button onclick="updateCartQty(\'' + item.id + '\', ' + (item.qty - 1) + ')">-</button>';
+            html += '<input type="number" value="' + item.qty + '" onchange="updateCartQty(\'' + item.id + '\', parseInt(this.value) || 0)">';
+            html += '<button onclick="updateCartQty(\'' + item.id + '\', ' + (item.qty + 1) + ')">+</button>';
+            html += '</div>';
+            html += '<div class="cart-item-total">$' + itemTotal.toLocaleString('es-VE') + '</div>';
+            html += '<button class="cart-item-remove" onclick="removeCartItem(\'' + item.id + '\')"><i class="fas fa-trash"></i></button>';
+            html += '</div>';
+        });
+        body.innerHTML = html;
+    }
+
+    document.getElementById('cartModalTotal').textContent = '$' + Cart.getTotal().toLocaleString('es-VE');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCartModal() {
+    document.getElementById('cartModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+function updateCartQty(id, qty) {
+    Cart.updateQty(id, qty);
+    var input = document.getElementById('qty-' + id);
+    if (input) input.value = qty;
+    updateCartModal();
+    updateTotal();
+}
+
+function removeCartItem(id) {
+    Cart.removeItem(id);
+    var input = document.getElementById('qty-' + id);
+    if (input) input.value = 0;
+    updateCartModal();
+    updateTotal();
+}
+
+function updateCartModal() {
+    var items = Cart.getItems();
+    var body = document.getElementById('cartModalBody');
+
+    if (items.length === 0) {
+        body.innerHTML = '<div class="cart-empty"><i class="fas fa-shopping-cart"></i><p>Tu carrito esta vacio</p></div>';
+    } else {
+        var html = '';
+        items.forEach(function(item) {
+            var itemTotal = item.price * item.qty;
+            html += '<div class="cart-item">';
+            html += '<div class="cart-item-info">';
+            html += '<div class="cart-item-name">' + item.name + '</div>';
+            html += '<div class="cart-item-price">$' + item.price.toLocaleString('es-VE') + (item.isPasabocas ? ' c/u' : ' por bandeja') + '</div>';
+            html += '</div>';
+            html += '<div class="cart-item-qty">';
+            html += '<button onclick="updateCartQty(\'' + item.id + '\', ' + (item.qty - 1) + ')">-</button>';
+            html += '<input type="number" value="' + item.qty + '" onchange="updateCartQty(\'' + item.id + '\', parseInt(this.value) || 0)">';
+            html += '<button onclick="updateCartQty(\'' + item.id + '\', ' + (item.qty + 1) + ')">+</button>';
+            html += '</div>';
+            html += '<div class="cart-item-total">$' + itemTotal.toLocaleString('es-VE') + '</div>';
+            html += '<button class="cart-item-remove" onclick="removeCartItem(\'' + item.id + '\')"><i class="fas fa-trash"></i></button>';
+            html += '</div>';
+        });
+        body.innerHTML = html;
+    }
+
+    document.getElementById('cartModalTotal').textContent = '$' + Cart.getTotal().toLocaleString('es-VE');
+}
+
+function clearCartConfirm() {
+    if (confirm('Limpiar todo el carrito?')) {
+        Cart.clear();
+        document.querySelectorAll('.qty-control input').forEach(function(input) {
+            input.value = 0;
+        });
+        updateTotal();
+    }
+}
+
+Cart.onChange(updateCartBar);
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartBar();
+    syncFormWithCart();
+});
+
+function syncFormWithCart() {
+    var items = Cart.getItems();
+    items.forEach(function(item) {
+        var input = document.getElementById('qty-' + item.id);
+        if (input) input.value = item.qty;
+    });
+    updateTotal();
+}
